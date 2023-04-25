@@ -1,23 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/data/item.dart';
-import 'package:nosh_app/screens/add_menu.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
-import 'package:nosh_app/screens/cart.dart';
-import 'package:nosh_app/screens/forgot_password.dart';
-import 'package:nosh_app/screens/item_list.dart';
-import 'package:nosh_app/screens/login.dart';
-import 'package:nosh_app/screens/menu_list.dart';
-import 'package:nosh_app/screens/notification_list.dart';
-import 'package:nosh_app/screens/order_list_common.dart';
-import 'package:nosh_app/screens/order_list_customer.dart';
-import 'package:nosh_app/screens/payments.dart';
-import 'package:nosh_app/screens/profile.dart';
-import 'package:nosh_app/screens/qr.dart';
-import 'package:nosh_app/screens/signup.dart';
+import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/splash.dart';
-import 'package:nosh_app/screens/token_history.dart';
-import 'package:nosh_app/screens/users_list.dart';
+import 'package:nosh_app/screens/verify_otp.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,7 +31,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Palette.kToDark,
         // primaryColor: Color.fromRGBO(94, 165, 152, 0),
       ),
-      home: const Payments(),
+      home: Splash(),
     );
   }
 }
