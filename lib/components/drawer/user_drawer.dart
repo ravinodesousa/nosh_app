@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/splash.dart';
 
 class UserDrawer extends StatefulWidget {
   @override
@@ -49,14 +50,19 @@ class _UserDrawerState extends State<UserDrawer> {
                       color: Colors.blue,
                     ),
                   ),
-                  onPressed: () async {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => Splash()));
+                  },
                 ),
                 ElevatedButton(
                   child: Text("No",
                       style: TextStyle(
                         color: Colors.blue,
                       )),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             ),
