@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nosh_app/components/drawer/canteen_drawer.dart';
 import 'package:nosh_app/components/drawer/user_drawer.dart';
 import 'package:nosh_app/components/item.dart';
 import 'package:nosh_app/helpers/widgets.dart';
@@ -46,7 +47,8 @@ class _HomeState extends State<Home> {
             child: AppBar(
               backgroundColor: Colors.white,
             )),
-        drawer: UserDrawer(),
+        drawer: CanteenDrawer(),
+        // UserDrawer() , AdminDrawer()
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[

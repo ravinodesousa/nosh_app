@@ -1,13 +1,26 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
-import 'package:nosh_app/data/item.dart';
+import 'package:nosh_app/screens/add_menu_item.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
+import 'package:nosh_app/screens/cart.dart';
+import 'package:nosh_app/screens/category_item.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/item_detail.dart';
+import 'package:nosh_app/screens/menu_list.dart';
+import 'package:nosh_app/screens/notification_list.dart';
+import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/order_status.dart';
+import 'package:nosh_app/screens/order_summary.dart';
+import 'package:nosh_app/screens/qr_scan.dart';
 import 'package:nosh_app/screens/splash.dart';
 import 'package:nosh_app/screens/verify_otp.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +44,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Palette.kToDark,
         // primaryColor: Color.fromRGBO(94, 165, 152, 0),
       ),
-      home: Splash(),
+      home: MenuList(),
     );
   }
 }

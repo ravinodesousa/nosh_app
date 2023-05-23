@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1088206766470",
+    "project_id": "nosh-canteen-mgt",
+    "storage_bucket": "nosh-canteen-mgt.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088206766470:android:716c14bad49e20ab166c07",
+        "android_client_info": {
+          "package_name": "com.nosh_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088206766470-gqfifdlf400ij4aqbj6l2t15nbtt6kgb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsL8aYoPzlrpUDmCfhb0klbu-ntQyqAHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088206766470-gqfifdlf400ij4aqbj6l2t15nbtt6kgb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

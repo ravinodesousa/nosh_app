@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/data/user.dart';
+import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 
@@ -12,16 +14,23 @@ class CanteenList extends StatefulWidget {
 }
 
 class _CanteenListState extends State<CanteenList> {
-  bool _loading = false;
-  List _canteens = [
-    "Canteen 1",
-    "Canteen 2",
-    "Canteen 3",
-    "Canteen 4",
-    "Canteen 5",
-    "Canteen 6",
-    "Canteen 7",
-  ];
+  bool _loading = true;
+  List<User> _canteens = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initData();
+  }
+
+  void initData() async {
+    List<User> temp = await getAllUsers("CANTEEN");
+    setState(() {
+      _canteens = temp;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,41 +82,51 @@ class _CanteenListState extends State<CanteenList> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height - 130,
-                          child: GridView(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 30,
-                                    crossAxisSpacing: 30),
-                            children: [
-                              ..._canteens.map((e) => GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) => Home()));
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.yellow[700],
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: _loading == false
-                                            ? Text(
-                                                e,
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.w800),
-                                              )
-                                            : CupertinoActivityIndicator(),
-                                      ),
-                                    ),
-                                  ))
-                            ],
-                          ),
+                          child: _canteens.length > 0 && !_loading
+                              ? GridView(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          mainAxisSpacing: 30,
+                                          crossAxisSpacing: 30),
+                                  children: [
+                                    ..._canteens
+                                        .map((User tmpUser) => GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Home()));
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.yellow[700],
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      tmpUser.canteenName ?? '',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w800),
+                                                    )),
+                                              ),
+                                            ))
+                                  ],
+                                )
+                              : !_loading && _canteens.length == 0
+                                  ? Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "No Canteen's found",
+                                        style: TextStyle(
+                                            fontSize: 22, color: Colors.white),
+                                      ))
+                                  : null,
                         )
                       ]),
                 ),

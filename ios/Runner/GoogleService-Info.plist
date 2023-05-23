@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1088206766470-acvc95qv6hi1m0uf3ntgg0uevoi8m00p.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1088206766470-acvc95qv6hi1m0uf3ntgg0uevoi8m00p</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD_6VC4jsiSsrwtHIKvG4u5QRVNoDyTFb0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1088206766470</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.noshApp</string>
+	<key>PROJECT_ID</key>
+	<string>nosh-canteen-mgt</string>
+	<key>STORAGE_BUCKET</key>
+	<string>nosh-canteen-mgt.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1088206766470:ios:055d1c6c5b055826166c07</string>
+</dict>
+</plist>
