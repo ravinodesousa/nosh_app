@@ -14,12 +14,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<String> Listings1 = ["Fast Food", "Drinks", "Dessert", "All"];
-  bool isPress = false;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  int counter = 0;
-  int count = 0;
+
   String role = "user";
-  bool one = false;
 
   @override
   void initState() {
@@ -27,8 +25,6 @@ class _HomeState extends State<Home> {
     super.initState();
     try {
       // Listings1 = getFilterFavourites();
-      counter = 0;
-      count = 0;
     } catch (e) {
       print("error");
     }
@@ -100,57 +96,6 @@ class _HomeState extends State<Home> {
                                 //         builder: (context) => Search()));
                               },
                             ),
-                            // Stack(
-                            //   children: <Widget>[
-                            //     new IconButton(
-                            //       icon: Icon(
-                            //         Icons.notifications_active,
-                            //         color: Colors.black,
-                            //         size: 25,
-                            //       ),
-                            //       onPressed: () {
-                            //         // setState(() {
-                            //         //   count = 0;
-                            //         // });
-                            //         // Navigator.push(
-                            //         //   context,
-                            //         //   MaterialPageRoute(
-                            //         //     builder: (context) => Notifications(),
-                            //         //   ),
-                            //         // );
-                            //       },
-                            //     ),
-                            //     count != 0
-                            //         ? new Positioned(
-                            //             right: 11,
-                            //             top: 11,
-                            //             child: new Container(
-                            //               padding: EdgeInsets.all(2),
-                            //               decoration: new BoxDecoration(
-                            //                 color: Colors.red,
-                            //                 borderRadius:
-                            //                     BorderRadius.circular(6),
-                            //               ),
-                            //               constraints: BoxConstraints(
-                            //                 minWidth: 14,
-                            //                 minHeight: 14,
-                            //               ),
-                            //               child: Text(
-                            //                 '$count',
-                            //                 style: TextStyle(
-                            //                   color: Colors.white,
-                            //                   fontSize: 8,
-                            //                 ),
-                            //                 textAlign: TextAlign.center,
-                            //               ),
-                            //             ),
-                            //           )
-                            //         : Positioned(
-                            //             right: 11,
-                            //             top: 11,
-                            //             child: new Container())
-                            //   ],
-                            // ),
                             role == "user"
                                 ? Stack(
                                     children: <Widget>[
@@ -165,41 +110,15 @@ class _HomeState extends State<Home> {
                                           //   context,
                                           //   MaterialPageRoute(
                                           //     builder: (context) => Cart(
-                                          //       length: counter,
                                           //     ),
                                           //   ),
                                           // );
                                         },
                                       ),
-                                      counter != 0
-                                          ? new Positioned(
-                                              right: 11,
-                                              top: 11,
-                                              child: new Container(
-                                                padding: EdgeInsets.all(2),
-                                                decoration: new BoxDecoration(
-                                                  color: Colors.red,
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                constraints: BoxConstraints(
-                                                  minWidth: 14,
-                                                  minHeight: 14,
-                                                ),
-                                                child: Text(
-                                                  '$counter',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 8,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            )
-                                          : Positioned(
-                                              right: 11,
-                                              top: 11,
-                                              child: new Container())
+                                      Positioned(
+                                          right: 11,
+                                          top: 11,
+                                          child: new Container())
                                     ],
                                   )
                                 : SizedBox(width: 0),

@@ -14,7 +14,7 @@ class Product {
   String? id;
   String? name;
   String? image;
-  double? price;
+  int? price;
   // String? description;
   String? category;
   String? type;
@@ -23,8 +23,8 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) => Product(
         id: json["_id"],
         name: json["name"],
-        image: json["image"],
-        price: double.parse(json["price"]),
+        image: json["image"] == '' ? null : json["image"],
+        price: json["price"],
         // description: json["description"],
         category: json["category"],
         type: json["type"],

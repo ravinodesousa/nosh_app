@@ -5,6 +5,7 @@ import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/add_menu_item.dart';
+import 'package:nosh_app/screens/edit_menu_item.dart';
 import 'package:nosh_app/screens/home.dart';
 
 class MenuList extends StatefulWidget {
@@ -32,6 +33,22 @@ class _MenuListState extends State<MenuList> {
       _menuList = temp;
       _loading = false;
     });
+  }
+
+  void changeProductStatus(String id, bool status) async {
+    setState(() {
+      _loading = true;
+      _menuList = [];
+    });
+    Map<String, dynamic> result = await updateItemStatus(id, status);
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(result["status"] == 200
+          ? "Product Status Updated successfully"
+          : "Failed to Update Product Status. Please try again."),
+    ));
+
+    initMenu();
   }
 
   @override
@@ -71,7 +88,8 @@ class _MenuListState extends State<MenuList> {
                   return Card(
                     color: Colors.grey.shade300,
                     child: Padding(
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.only(
+                          left: 8, right: 8, top: 15, bottom: 15),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -82,16 +100,68 @@ class _MenuListState extends State<MenuList> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image.network(
-                                      item.image ?? '',
+                                      item.image ??
+                                          'http://via.placeholder.com/640x360',
                                       height: 50,
                                       width: 50,
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(item.name ?? ''),
-                                    Text("Amount: ${item.price}/-")
+                                    Text(
+                                      item.name ?? '',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Amount: ",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "${item.price}/-",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.green),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(item.category ?? ''),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        // Text(item.type ?? '')
+                                        item.type == "Veg"
+                                            ? Image.asset(
+                                                "assets/icons/veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                            : Image.asset(
+                                                "assets/icons/non_veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                      ],
+                                    )
                                   ],
                                 ),
                               ],
@@ -99,32 +169,60 @@ class _MenuListState extends State<MenuList> {
                             Row(
                               children: [
                                 SizedBox(
-                                  width: 40,
+                                  width: 30,
+                                  height: 30,
                                   child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: Icon(Icons.check, size: 18),
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditMenuItem(productData: item),
+                                      ));
+                                    },
+                                    child: Icon(Icons.edit, size: 18),
                                     style: ElevatedButton.styleFrom(
                                       textStyle: TextStyle(fontSize: 5),
                                       padding: EdgeInsets.all(5),
-                                      backgroundColor: Colors.green,
+                                      backgroundColor: Colors.blue,
                                     ),
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 5, // <-- SEE HERE
+                                  width: 10, // <-- SEE HERE
                                 ),
-                                SizedBox(
-                                  width: 40,
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: Icon(Icons.close, size: 18),
-                                    style: ElevatedButton.styleFrom(
-                                      textStyle: TextStyle(fontSize: 5),
-                                      padding: EdgeInsets.all(5),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  ),
-                                )
+                                (item.is_active ?? false)
+                                    ? SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            changeProductStatus(
+                                                item.id as String, false);
+                                          },
+                                          child: Icon(Icons.close, size: 18),
+                                          style: ElevatedButton.styleFrom(
+                                            textStyle: TextStyle(fontSize: 5),
+                                            padding: EdgeInsets.all(5),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            changeProductStatus(
+                                                item.id as String, true);
+                                          },
+                                          child: Icon(Icons.check, size: 18),
+                                          style: ElevatedButton.styleFrom(
+                                            textStyle: TextStyle(fontSize: 5),
+                                            padding: EdgeInsets.all(5),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        ),
+                                      )
                               ],
                             ),
                           ]),

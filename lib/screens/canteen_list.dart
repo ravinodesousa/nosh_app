@@ -5,6 +5,7 @@ import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CanteenList extends StatefulWidget {
   const CanteenList({super.key});
@@ -16,6 +17,7 @@ class CanteenList extends StatefulWidget {
 class _CanteenListState extends State<CanteenList> {
   bool _loading = true;
   List<User> _canteens = [];
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
@@ -26,6 +28,7 @@ class _CanteenListState extends State<CanteenList> {
 
   void initData() async {
     List<User> temp = await getAllUsers("CANTEEN");
+    print("temp ${temp}");
     setState(() {
       _canteens = temp;
       _loading = false;
@@ -92,7 +95,12 @@ class _CanteenListState extends State<CanteenList> {
                                   children: [
                                     ..._canteens
                                         .map((User tmpUser) => GestureDetector(
-                                              onTap: () {
+                                              onTap: () async {
+                                                final SharedPreferences prefs =
+                                                    await _prefs;
+                                                prefs.setString("canteenId",
+                                                    tmpUser.id as String);
+
                                                 Navigator.of(context).push(
                                                     MaterialPageRoute(
                                                         builder: (context) =>

@@ -44,7 +44,7 @@ dependencies:
   mobile_scanner: ^3.2.0
   lottie: ^2.3.2
   http: ^0.13.6
-  shared_preferences: ^2.1.0
+  shared_preferences: ^2.1.1
   image_picker: ^0.8.7+4
   firebase_storage: ^11.2.1
   firebase_core: ^2.13.0

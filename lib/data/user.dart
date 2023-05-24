@@ -18,10 +18,10 @@ class User {
     this.userStatus,
   });
 
-  int? id;
+  String? id;
   String? username;
   String? canteenName;
-  Institution? institution;
+  String? institution;
   String? profilePicture;
   String? email;
   bool? isEmailConfirmed;

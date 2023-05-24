@@ -8,15 +8,13 @@ import 'package:nosh_app/data/institution.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/data/user.dart';
 
-const String base_url = "https://e5d2-43-249-184-203.ngrok-free.app/";
-
 final Map<String, String> headers = {
   'Content-Type': 'application/json; charset=UTF-8'
 };
 
 Future<List<Institution>> getAllInstitutions() async {
   try {
-    final url = Uri.parse(base_url + "user/get-institutions");
+    final url = Uri.parse(baseURL + "user/get-institutions");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -35,7 +33,7 @@ Future<List<Institution>> getAllInstitutions() async {
 
 Future<User?> login(String email, String password) async {
   try {
-    final url = Uri.parse(base_url + "user/login");
+    final url = Uri.parse(baseURL + "user/login");
     final response = await http.post(
       url,
       headers: headers,
@@ -57,7 +55,7 @@ Future<User?> login(String email, String password) async {
 
 Future<User?> signup(String email, String password) async {
   try {
-    final url = Uri.parse(base_url + "user/signup");
+    final url = Uri.parse(baseURL + "user/signup");
     final response = await http.post(
       url,
       headers: headers,
@@ -78,16 +76,18 @@ Future<User?> signup(String email, String password) async {
 
 Future<List<User>> getAllUsers(String userType) async {
   try {
-    final url = Uri.parse(base_url + "user/users");
+    final url = Uri.parse(baseURL + "user/users");
     final response = await http.post(
       url,
       headers: headers,
-      body: jsonEncode({userType}),
+      body: jsonEncode({"userType": userType}),
     );
 
     if (response.statusCode == 200) {
       List<User> list = [];
+      print("response ${response.body}");
       List data = jsonDecode(response.body);
+      print("data ${data}");
       data.forEach((item) => {list.add(User.fromJson(item))});
       return list;
     } else {
@@ -107,7 +107,7 @@ Future<List<Product>> getAllMenuItems(String userId, bool showAllItems) async {
       data["is_active"] = true;
     }
 
-    final url = Uri.parse(base_url + "product/items");
+    final url = Uri.parse(baseURL + "product/items");
     final response = await http.post(
       url,
       headers: headers,
@@ -117,8 +117,9 @@ Future<List<Product>> getAllMenuItems(String userId, bool showAllItems) async {
     if (response.statusCode == 200) {
       List<Product> list = [];
       List data = jsonDecode(response.body);
-      print(data);
+      print("date1 : ${data}");
       data.forEach((item) => {list.add(Product.fromJson(item))});
+      print("list1 : ${list}");
       return list;
     } else {
       throw Exception('Request failed');
@@ -129,8 +130,8 @@ Future<List<Product>> getAllMenuItems(String userId, bool showAllItems) async {
   }
 }
 
-Future<Product?> addItem(String userId, String itemName, String itemImage,
-    String itemAmount, String category, String type) async {
+Future<Map<String, dynamic>> addItem(String userId, String itemName,
+    String itemImage, String itemAmount, String category, String type) async {
   try {
     Map<String, dynamic> data = {
       "userId": userId,
@@ -141,7 +142,7 @@ Future<Product?> addItem(String userId, String itemName, String itemImage,
       "image": itemImage
     };
 
-    final url = Uri.parse(base_url + "product/add-item");
+    final url = Uri.parse(baseURL + "product/add-item");
     final response = await http.post(
       url,
       headers: headers,
@@ -149,16 +150,83 @@ Future<Product?> addItem(String userId, String itemName, String itemImage,
     );
 
     if (response.statusCode == 200) {
-      List<Product> list = [];
-      List data = jsonDecode(response.body);
-      // data.forEach((item) => {list.add(Product.fromJson(item))});
-      // return list;
-      print(data);
+      return {
+        "status": 200,
+      };
     } else {
       throw Exception('Request failed');
     }
   } catch (err) {
     print("err : ${err}");
-    return null;
+    return {"status": 500};
+  }
+}
+
+Future<Map<String, dynamic>> updateItem(
+    String userId,
+    String id,
+    String itemName,
+    String itemImage,
+    String itemAmount,
+    String category,
+    String type) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+      "id": id,
+      "name": itemName,
+      "price": itemAmount,
+      "category": category,
+      "type": type,
+      "image": itemImage
+    };
+
+    final url = Uri.parse(baseURL + "product/update-item");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
+  }
+}
+
+Future<Map<String, dynamic>> updateItemStatus(
+  String id,
+  bool status,
+) async {
+  try {
+    Map<String, dynamic> data = {
+      "id": id,
+      "status": status,
+    };
+
+    final url = Uri.parse(baseURL + "product/update-item-status");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
   }
 }

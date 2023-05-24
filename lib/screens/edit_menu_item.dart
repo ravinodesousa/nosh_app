@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:nosh_app/data/product.dart';
+import 'package:nosh_app/screens/menu_list.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,14 +11,16 @@ import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddMenuItem extends StatefulWidget {
-  const AddMenuItem({super.key});
+class EditMenuItem extends StatefulWidget {
+  const EditMenuItem({super.key, required this.productData});
+
+  final Product productData;
 
   @override
-  State<AddMenuItem> createState() => _AddMenuItemState();
+  State<EditMenuItem> createState() => _EditMenuItemState();
 }
 
-class _AddMenuItemState extends State<AddMenuItem> {
+class _EditMenuItemState extends State<EditMenuItem> {
   final ImagePicker picker = ImagePicker();
   XFile? image;
 
@@ -101,14 +105,17 @@ class _AddMenuItemState extends State<AddMenuItem> {
         });
   }
 
-  void addItemHandler() async {
+  void updateItemHandler() async {
     dynamic itemNameValidation =
         itemName.text.trim() == "" ? "Item name is required" : null;
 
     final number = num.tryParse(itemAmount.text.trim());
     dynamic itemAmountValidation = number == null ? "Invalid Number" : null;
 
-    dynamic itemImageValidation = image == null ? "Image not selected" : null;
+    dynamic itemImageValidation =
+        image == null && widget.productData.image == ''
+            ? "Image not selected"
+            : null;
 
     setState(() {
       itemNameError = itemNameValidation;
@@ -116,16 +123,19 @@ class _AddMenuItemState extends State<AddMenuItem> {
       itemImageError = itemImageValidation;
     });
 
-    print(image!.path);
-
     if (itemNameValidation == null &&
         itemAmountValidation == null &&
         itemImageValidation == null) {
-      String uploadedFileurl = await uploadFile(File(image!.path));
+      String uploadedFileurl = widget.productData.image as String;
+
+      if (image != null) {
+        uploadedFileurl = await uploadFile(File(image!.path));
+      }
 
       if (uploadedFileurl != '') {
-        Map<String, dynamic> result = await addItem(
+        Map<String, dynamic> result = await updateItem(
             "6457ff37b9f3e807e11cccd6",
+            widget.productData.id as String,
             itemName.text,
             uploadedFileurl,
             itemAmount.text,
@@ -134,19 +144,9 @@ class _AddMenuItemState extends State<AddMenuItem> {
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(result["status"] == 200
-              ? "Uploaded Product successfully"
-              : "Failed to Upload Product. Please try again."),
+              ? "Product Updated successfully"
+              : "Failed to Update Product. Please try again."),
         ));
-
-        if (result["status"] == 200) {
-          setState(() {
-            image = null;
-            _categorydropdownvalue = 'Fast Food';
-            _typedropdownvalue = 'Veg';
-          });
-          itemName.clear();
-          itemAmount.clear();
-        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content:
@@ -156,9 +156,23 @@ class _AddMenuItemState extends State<AddMenuItem> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    itemName.text = widget.productData.name as String;
+    itemAmount.text = '${widget.productData.price}';
+
+    setState(() {
+      _categorydropdownvalue = widget.productData.category as String;
+      _typedropdownvalue = widget.productData.type as String;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add Item")),
+      appBar: AppBar(title: Text("Edit Item")),
       body: ModalProgressHUD(
           inAsyncCall: _loading,
           color: Colors.black54,
@@ -182,7 +196,7 @@ class _AddMenuItemState extends State<AddMenuItem> {
                     SizedBox(
                         height: 150,
                         width: 150,
-                        child: image != null
+                        child: image != null || widget.productData.image != ''
                             ? InkWell(
                                 onTap: () async {
                                   await Permission.photos.request();
@@ -196,13 +210,21 @@ class _AddMenuItemState extends State<AddMenuItem> {
                                         'Permission not granted. Try Again with permission access');
                                   }
                                 },
-                                child: Image.file(
-                                  //to show image, you type like this.
-                                  File(image!.path),
-                                  fit: BoxFit.contain,
-                                  // width: MediaQuery.of(context).size.width,
-                                  // height: 300,
-                                ),
+                                child: image != null
+                                    ? Image.file(
+                                        //to show image, you type like this.
+                                        File(image!.path),
+                                        fit: BoxFit.contain,
+                                        // width: MediaQuery.of(context).size.width,
+                                        // height: 300,
+                                      )
+                                    : Image.network(
+                                        //to show image, you type like this.
+                                        widget.productData.image as String,
+                                        fit: BoxFit.contain,
+                                        // width: MediaQuery.of(context).size.width,
+                                        // height: 300,
+                                      ),
                               )
                             : Card(
                                 color: Colors.grey,
@@ -340,13 +362,27 @@ class _AddMenuItemState extends State<AddMenuItem> {
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    addItemHandler();
-                  },
-                  child: Text("ADD ITEM"),
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => MenuList()));
+                      },
+                      child: Text("CANCEL"),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        updateItemHandler();
+                      },
+                      child: Text("UPDATE ITEM"),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
+                    )
+                  ],
                 )
               ],
             ),
