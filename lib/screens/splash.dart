@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/components/bottomsheet/password_reset.dart';
 import 'package:nosh_app/components/bottomsheet/signin.dart';
@@ -11,7 +12,9 @@ import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/validation.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
+import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/verify_otp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -22,6 +25,7 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   bool _loading = false;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   TextEditingController loginEmail = new TextEditingController();
   TextEditingController loginPassword = new TextEditingController();
@@ -84,6 +88,32 @@ class _SplashState extends State<Splash> {
               onResetPasswordCallback: (context) =>
                   {bottomsheetreset(context)});
         });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    checkAuthStatus();
+  }
+
+  void checkAuthStatus() async {
+    final SharedPreferences prefs = await _prefs;
+    if (prefs.containsKey("userId") &&
+        prefs.containsKey("userType") &&
+        prefs.containsKey("userName") &&
+        prefs.containsKey("canteenName") &&
+        prefs.containsKey("email") &&
+        prefs.containsKey("mobileNo")) {
+      if (prefs.getString("userType") == "USER") {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => CanteenList()));
+      } else if (prefs.getString("userType") == "CANTEEN") {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Home()));
+      }
+    }
   }
 
   @override

@@ -12,7 +12,7 @@ class OrderStatus extends StatefulWidget {
 
 class _OrderStatusState extends State<OrderStatus> {
   bool _loading = false;
-  String order_status = "CONFIRMED"; // CONFIRMED, INPROGRESS, READY
+  String order_status = "INPROGRESS"; // CONFIRMED, INPROGRESS, READY
 
   Widget ConfirmedView(BuildContext context) {
     return Padding(

@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/config/palette.dart';
+import 'package:nosh_app/data/cart_item.dart';
+import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/order_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderSummary extends StatefulWidget {
-  const OrderSummary({super.key});
+  const OrderSummary(
+      {super.key, required this.cartItems, required this.timeSlot});
+
+  final List<CartItem> cartItems;
+  final String timeSlot;
 
   @override
   State<OrderSummary> createState() => _OrderSummaryState();
 }
 
 class _OrderSummaryState extends State<OrderSummary> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool _loading = false;
-  List _orderitems = [
-    "Item 1",
-    "Item 2",
-    "Item 3",
-    "Item 4",
-    "Item 5",
-    "Item 6",
-    "Item 7",
-  ];
+  List<CartItem> _orderitems = [];
 
   String _paymentdropdownvalue = 'Online';
   var _payments = [
@@ -30,6 +33,70 @@ class _OrderSummaryState extends State<OrderSummary> {
     "Token",
     "Cash On Delivery",
   ];
+
+  String userId = "";
+  String canteenId = "";
+  String userName = '';
+  String mobileNo = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initData();
+  }
+
+  void initData() async {
+    final SharedPreferences prefs = await _prefs;
+
+    setState(() {
+      userId = prefs.getString("userId") as String;
+      canteenId = prefs.getString("canteenId") as String;
+      userName = prefs.getString("userName") as String;
+      mobileNo = prefs.getString("mobileNo") as String;
+      _orderitems = widget.cartItems;
+    });
+  }
+
+  void quantityBtnHandler(String action, int index) {
+    if (action == "INCREMENT" && _orderitems[index].quantity! < 20) {
+      _orderitems[index].quantity = _orderitems[index].quantity! + 1;
+      setState(() {
+        _orderitems = _orderitems;
+      });
+    } else if (action == "DECREMENT" && _orderitems[index].quantity! > 1) {
+      _orderitems[index].quantity = _orderitems[index].quantity! - 1;
+      setState(() {
+        _orderitems = _orderitems;
+      });
+    }
+  }
+
+  void placeOrderHandler() async {
+    setState(() {
+      _loading = true;
+    });
+    Map<String, dynamic> data = await placeOrder(
+        userId, canteenId, widget.timeSlot, _paymentdropdownvalue, _orderitems);
+
+    if (data["status"] == 200) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => OrderList()));
+    } else {
+      Fluttertoast.showToast(
+          msg: data["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +129,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                   Column(
                     children: [
                       Text(
-                        "Username",
+                        userName,
                         style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.bold,
@@ -80,7 +147,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                           SizedBox(
                             width: 5,
                           ),
-                          Text("9876543210")
+                          Text(mobileNo)
                         ],
                       )
                     ],
@@ -99,7 +166,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    "09:00 AM - 10:00 AM",
+                    widget.timeSlot,
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -137,7 +204,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                       }).toList(),
                       // After selecting the desired option,it will
                       // change button value to selected value
-                      onChanged: (String? newValue) {},
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _paymentdropdownvalue = newValue!;
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -171,16 +242,55 @@ class _OrderSummaryState extends State<OrderSummary> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image.network(
-                                      "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                      _orderitems[index].image ??
+                                          "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
                                       height: 50,
                                       width: 50,
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
                                 Column(
                                   children: [
-                                    Text("x1 - Milkshake"),
-                                    Text("Amount: 90/-")
+                                    Row(
+                                      children: [
+                                        Text(
+                                            "x${_orderitems[index].quantity} - "),
+                                        Text(
+                                          "${_orderitems[index].name}",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text("Amount: "),
+                                        Text('${_orderitems[index].price}/-',
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold)),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        _orderitems[index].type == "Veg"
+                                            ? Image.asset(
+                                                "assets/icons/veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                            : Image.asset(
+                                                "assets/icons/non_veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                      ],
+                                    )
                                   ],
                                 ),
                               ],
@@ -188,7 +298,9 @@ class _OrderSummaryState extends State<OrderSummary> {
                             Row(
                               children: [
                                 InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                    quantityBtnHandler("INCREMENT", index);
+                                  },
                                   child: Container(
                                     decoration: BoxDecoration(
                                         color: Colors.black,
@@ -208,12 +320,14 @@ class _OrderSummaryState extends State<OrderSummary> {
                                 Padding(
                                   padding: const EdgeInsets.all(14),
                                   child: Text(
-                                    "1",
+                                    "${_orderitems[index].quantity}",
                                     style: TextStyle(fontSize: 19),
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                    quantityBtnHandler("DECREMENT", index);
+                                  },
                                   child: Container(
                                     decoration: BoxDecoration(
                                         color: Colors.black,
@@ -246,7 +360,9 @@ class _OrderSummaryState extends State<OrderSummary> {
                   margin: const EdgeInsets.all(5),
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      placeOrderHandler();
+                    },
                     child: const Text('Place Order'),
                   ),
                 ),

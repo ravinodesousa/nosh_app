@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/order_summary.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nosh_app/data/cart_item.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -12,16 +17,11 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  bool _loading = false;
-  List _cartitems = [
-    "Item 1",
-    "Item 2",
-    "Item 3",
-    "Item 4",
-    "Item 5",
-    "Item 6",
-    "Item 7",
-  ];
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  bool _loading = true;
+  List<CartItem> _cartitems = [];
+
   String _timeslotdropdownvalue = '09:00 AM - 10:00 AM';
   var _timeslots = [
     "09:00 AM - 10:00 AM",
@@ -33,6 +33,44 @@ class _CartState extends State<Cart> {
     "03:00 PM - 04:00 PM",
     "04:00 PM - 05:00 PM",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    initData();
+  }
+
+  void initData() async {
+    final SharedPreferences prefs = await _prefs;
+
+    List<CartItem> temp =
+        await getCartItems(prefs.getString("userId") as String);
+
+    setState(() {
+      _cartitems = temp;
+      _loading = false;
+    });
+  }
+
+  void deleteHandler(String id) async {
+    setState(() {
+      _loading = true;
+      _cartitems = [];
+    });
+
+    Map<String, dynamic> data = await deleteFromCart(id);
+
+    Fluttertoast.showToast(
+        msg: data["message"],
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: data["status"] == 200 ? Colors.green : Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+    initData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,16 +109,55 @@ class _CartState extends State<Cart> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image.network(
-                                      "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                      _cartitems[index].image ??
+                                          "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
                                       height: 50,
                                       width: 50,
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
                                 Column(
                                   children: [
-                                    Text("x1 - Milkshake"),
-                                    Text("Amount: 90/-")
+                                    Row(
+                                      children: [
+                                        Text(
+                                            "x${_cartitems[index].quantity} - "),
+                                        Text(
+                                          "${_cartitems[index].name}",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text("Amount: "),
+                                        Text('${_cartitems[index].price}/-',
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold)),
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        _cartitems[index].type == "Veg"
+                                            ? Image.asset(
+                                                "assets/icons/veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                            : Image.asset(
+                                                "assets/icons/non_veg.png",
+                                                fit: BoxFit.cover,
+                                                width: 25,
+                                                height: 25,
+                                              )
+                                      ],
+                                    )
                                   ],
                                 ),
                               ],
@@ -88,7 +165,9 @@ class _CartState extends State<Cart> {
                             Column(
                               children: [
                                 IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      deleteHandler(_cartitems[index].id ?? '');
+                                    },
                                     icon: Icon(
                                       Icons.delete,
                                       color: Colors.red,
@@ -129,7 +208,11 @@ class _CartState extends State<Cart> {
                     }).toList(),
                     // After selecting the desired option,it will
                     // change button value to selected value
-                    onChanged: (String? newValue) {},
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _timeslotdropdownvalue = newValue!;
+                      });
+                    },
                   ),
                 ),
               ],
@@ -143,7 +226,13 @@ class _CartState extends State<Cart> {
                 margin: const EdgeInsets.all(5),
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => OrderSummary(
+                              cartItems: _cartitems,
+                              timeSlot: _timeslotdropdownvalue,
+                            )));
+                  },
                   child: const Text('Order'),
                 ),
               ),

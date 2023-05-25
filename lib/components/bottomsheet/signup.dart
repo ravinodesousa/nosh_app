@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/institution.dart';
 import 'package:nosh_app/data/user.dart';
@@ -15,7 +16,7 @@ class SignupBottomSheet extends StatefulWidget {
 }
 
 class _SignupBottomSheetState extends State<SignupBottomSheet> {
-  bool _loading = false;
+  bool _loading = true;
   String _selectedUserType = 'Student';
   var userTypes = [
     'Student',
@@ -24,14 +25,19 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
   Institution _selectedInstitution = new Institution();
   List<Institution>? institutionNames = [];
 
+  String? nameError = null;
   String? emailError = null;
   String? passwordError = null;
+  String? mobileNoError = null;
+  String? canteenNameError = null;
 
   TextEditingController signupEmail = new TextEditingController();
   TextEditingController signupPassword = new TextEditingController();
   TextEditingController signupName = new TextEditingController();
   TextEditingController signupMobileNo = new TextEditingController();
   TextEditingController signupCanteenName = new TextEditingController();
+
+  bool obscurePassword = true;
 
   @override
   void initState() {
@@ -43,29 +49,73 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
   void initializeDropdowns() async {
     List<Institution> temp = await getAllInstitutions();
 
-    setState(() {
-      institutionNames = temp;
-    });
+    print(temp);
+    if (temp.length > 0) {
+      setState(() {
+        institutionNames = temp;
+        _selectedInstitution = institutionNames!.first;
+        _loading = false;
+      });
+    } else {
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
-  void signupHandler() async {
-    dynamic emailValidationResult = isValidEmail(signupEmail.text);
-    dynamic passwordValidationResult = isValidPassword(signupPassword.text);
+  void signupHandler(BuildContext context) async {
+    Map<String, dynamic> emailValidationResult = isValidEmail(signupEmail.text);
+    Map<String, dynamic> passwordValidationResult =
+        isValidPassword(signupPassword.text);
 
     setState(() {
-      emailError = emailValidationResult?.error ?? null;
-      passwordError = passwordValidationResult?.error ?? null;
+      emailError = emailValidationResult["error"] ?? null;
+      passwordError = passwordValidationResult["error"] ?? null;
+      nameError = signupName.text.trim() == '' ? "Full name is required" : null;
+      mobileNoError =
+          signupName.text.trim() == '' ? "Full name is required" : null;
+      canteenNameError = _selectedUserType == "Canteen Owner" &&
+              signupCanteenName.text.trim() == ''
+          ? "Canteen name is required"
+          : null;
     });
+    print("1222 called");
+    if (emailValidationResult["is_valid"] &&
+        passwordValidationResult["is_valid"] &&
+        nameError == null &&
+        mobileNoError == null &&
+        canteenNameError == null) {
+      print("signup called");
+      Map<String, dynamic> data = await signup(
+          _selectedUserType == "Student" ? "USER" : "CANTEEN",
+          signupName.text,
+          signupEmail.text,
+          signupPassword.text,
+          signupMobileNo.text,
+          _selectedInstitution.id as String,
+          signupCanteenName.text);
 
-    if (emailValidationResult?.is_valid && passwordValidationResult?.is_valid) {
-      // _selectedUserType
-// signupName
-// signupMobileNo
-// _selectedInstitution
-// signupCanteenName
-      User? userData = await signup(signupEmail.text, signupPassword.text);
-      if (userData != null) {
-// todo: redirect to home screen
+      print(data);
+
+      Fluttertoast.showToast(
+          msg: data["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: data["successful"] ? Colors.green : Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      if (data["successful"]) {
+        // todo: redirect to verify otp screen  to verify the mobile number
+        signupName.clear();
+        signupEmail.clear();
+        signupPassword.clear();
+        signupMobileNo.clear();
+        signupCanteenName.clear();
+
+        Navigator.pop(context);
+        widget.onSigninCallback(context);
       }
     }
   }
@@ -145,6 +195,9 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Icon(Icons.verified_user_outlined),
+                          SizedBox(
+                            width: 20,
+                          ),
                           Expanded(
                             child: DropdownButton(
                               isExpanded: true,
@@ -178,9 +231,10 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                     TextFormField(
                       style: TextStyle(color: Colors.grey.shade700),
                       decoration: InputDecoration(
+                        errorText: nameError,
                         labelStyle: TextStyle(color: Colors.black),
                         hintText: "Enter your full name",
-                        labelText: "FUll NAME",
+                        labelText: "FULL NAME",
                         prefixIcon: Icon(
                           Icons.person_outline_sharp,
                           color: Colors.black,
@@ -200,6 +254,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                     TextFormField(
                       style: TextStyle(color: Colors.grey.shade700),
                       decoration: InputDecoration(
+                        errorText: emailError,
                         labelStyle: TextStyle(color: Colors.black),
                         hintText: "Enter your email",
                         labelText: "EMAIL",
@@ -222,9 +277,10 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                       height: 15,
                     ),
                     TextFormField(
-                      obscureText: true,
+                      obscureText: obscurePassword,
                       style: TextStyle(color: Colors.grey.shade700),
                       decoration: InputDecoration(
+                        errorText: passwordError,
                         labelStyle: TextStyle(color: Colors.black),
                         hintText: "Enter your password",
                         labelText: "PASSWORD",
@@ -235,9 +291,16 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey.shade700),
                         ),
-                        suffixIcon: Icon(
-                          Icons.visibility_off,
-                          color: Colors.grey,
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+                          child: Icon(
+                            Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
                         ),
                         enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
@@ -251,6 +314,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                     TextFormField(
                       style: TextStyle(color: Colors.grey.shade700),
                       decoration: InputDecoration(
+                        errorText: mobileNoError,
                         labelStyle: TextStyle(color: Colors.black),
                         hintText: "Enter your Mobile No",
                         labelText: "MOBILE NO",
@@ -277,28 +341,31 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Icon(Icons.house_sharp),
+                          SizedBox(
+                            width: 20,
+                          ),
                           Expanded(
                             child: DropdownButton(
                               isExpanded: true,
-
                               // Initial Value
                               value: _selectedInstitution.id,
-
                               // Down Arrow Icon
                               icon: const Icon(Icons.keyboard_arrow_down),
-
                               // Array list of userTypes
                               items: institutionNames?.map((Institution items) {
                                 return DropdownMenuItem(
-                                  value: items,
+                                  value: items.id,
                                   child: Text(items.name ?? ''),
                                 );
                               }).toList(),
                               // After selecting the desired option,it will
                               // change button value to selected value
                               onChanged: (dynamic newValue) {
+                                dynamic matchedInstitution = institutionNames
+                                    ?.firstWhere((institution) =>
+                                        institution.id == newValue);
                                 setState(() {
-                                  _selectedInstitution = newValue!;
+                                  _selectedInstitution = matchedInstitution;
                                 });
                               },
                             ),
@@ -311,6 +378,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                       TextFormField(
                         style: TextStyle(color: Colors.grey.shade700),
                         decoration: InputDecoration(
+                          errorText: canteenNameError,
                           labelStyle: TextStyle(color: Colors.black),
                           hintText: "Select your Canteen Name",
                           labelText: "CANTEEN NAME",
@@ -340,7 +408,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         //   MaterialPageRoute(
                         //       builder: (context) => VerifyOtp()),
                         // );
-                        signupHandler();
+                        signupHandler(context);
                       },
                       child: Container(
                         height: 50,

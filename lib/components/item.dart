@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:nosh_app/screens/item_detail.dart';
 
 class Item extends StatelessWidget {
-  String name, image, price, description, category, type, inv, docid;
+  String name, image, price, description, category, type, inv;
   num rating, ratingcount, reviewcount, rate1, rate2, rate3, rate4, rate5;
   int index;
+  Product item;
   Item(
       {required this.index,
       required this.name,
@@ -17,41 +20,41 @@ class Item extends StatelessWidget {
       required this.category,
       required this.type,
       required this.inv,
-      required this.docid,
       required this.rate1,
       required this.rate2,
       required this.rate3,
       required this.rate4,
       required this.rate5,
       required this.ratingcount,
-      required this.reviewcount});
+      required this.reviewcount,
+      required this.item});
 
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
-        // Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => Description(
-        //               image: image,
-        //               name: name,
-        //               description: description,
-        //               amount: price,
-        //               category: category,
-        //               review: rating,
-        //               type: type,
-        //               inv: inv,
-        //               docid: docid,
-        //               rate1: rate1,
-        //               rate2: rate2,
-        //               rate3: rate3,
-        //               rate4: rate4,
-        //               rate5: rate5,
-        //               ratingcount: ratingcount,
-        //               reviewcount: reviewcount,
-        //             )));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ItemDetail(
+                      // image: image,
+                      // name: name,
+                      // description: description,
+                      // amount: price,
+                      // category: category,
+                      // review: rating,
+                      // type: type,
+                      // inv: inv,
+                      // rate1: rate1,
+                      // rate2: rate2,
+                      // rate3: rate3,
+                      // rate4: rate4,
+                      // rate5: rate5,
+                      // ratingcount: ratingcount,
+                      // reviewcount: reviewcount,
+                      itemDetails: item,
+                    )));
       },
       child: Container(
         width: width * 0.4,
@@ -111,8 +114,33 @@ class Item extends StatelessWidget {
                   //     ),
                   //   ],
                   // ),
-                  text1(reviewcount.toString() + " reviews",
-                      textColor: Color(0xFF949292), fontSize: 14.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      text1(
+                        type.toString().toUpperCase(),
+                        textColor: Color(0xFF949292),
+                        fontSize: 14.0,
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      type == "Veg"
+                          ? Image.asset(
+                              "assets/icons/veg.png",
+                              fit: BoxFit.cover,
+                              width: 25,
+                              height: 25,
+                            )
+                          : Image.asset(
+                              "assets/icons/non_veg.png",
+                              fit: BoxFit.cover,
+                              width: 25,
+                              height: 25,
+                            )
+                    ],
+                  )
                 ],
               ),
             )

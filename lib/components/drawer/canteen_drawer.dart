@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/menu_list.dart';
+import 'package:nosh_app/screens/notification_list.dart';
+import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/qr_scan.dart';
 import 'package:nosh_app/screens/splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CanteenDrawer extends StatefulWidget {
   const CanteenDrawer({super.key});
@@ -10,6 +16,8 @@ class CanteenDrawer extends StatefulWidget {
 }
 
 class _CanteenDrawerState extends State<CanteenDrawer> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   var selectedItem = -1;
   List<String> username = [];
 
@@ -21,6 +29,14 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
     super.initState();
     username = ["User", "1"];
     counter = 0;
+  }
+
+  void logoutHandler() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.clear().then((value) => {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => Splash()))
+        });
   }
 
   Widget getDrawerItem(IconData icon, String name, int pos, {var tags, ind}) {
@@ -46,21 +62,23 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
               ),
               actions: [
                 ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: Text(
                     "Yes",
                     style: TextStyle(
-                      color: Colors.blue,
+                      color: Colors.white,
                     ),
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => Splash()));
+                    logoutHandler();
                   },
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   child: Text("No",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Colors.white,
                       )),
                   onPressed: () {
                     Navigator.pop(context);
@@ -154,34 +172,37 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                       ),
                     )),
                 SizedBox(height: 30),
-                getDrawerItem(Icons.dashboard, "Home", 1, ind: "home"),
+                getDrawerItem(Icons.dashboard, "Home", 1,
+                    ind: "home", tags: Home()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list, "View Orders", 1, ind: "view-orders"),
+                getDrawerItem(Icons.list, "View Orders", 2,
+                    ind: "view-orders", tags: OrderList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list_alt, "Edit Menu", 1, ind: "edit-menu"),
+                getDrawerItem(Icons.list_alt, "Edit Menu", 3,
+                    ind: "edit-menu", tags: MenuList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Notifications", 1,
-                    ind: "notifications"),
+                getDrawerItem(Icons.notifications, "Notifications", 4,
+                    ind: "notifications", tags: NotificationList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Scan QR Code", 1,
-                    ind: "scan-qr"),
+                getDrawerItem(Icons.notifications, "Scan QR Code", 5,
+                    ind: "scan-qr", tags: QRScan()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
+                getDrawerItem(Icons.logout, "Logout", 6, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

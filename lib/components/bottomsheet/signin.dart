@@ -4,6 +4,9 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/validation.dart';
+import 'package:nosh_app/screens/canteen_list.dart';
+import 'package:nosh_app/screens/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SigninBottomSheet extends StatefulWidget {
   const SigninBottomSheet(
@@ -19,6 +22,8 @@ class SigninBottomSheet extends StatefulWidget {
 }
 
 class _SigninBottomSheetState extends State<SigninBottomSheet> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool _loading = false;
   String? emailError = null;
   String? passwordError = null;
@@ -27,19 +32,37 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
   TextEditingController loginPassword = new TextEditingController();
 
   void loginHandler() async {
-    dynamic emailValidationResult = isValidEmail(loginEmail.text);
-    dynamic passwordValidationResult = isValidPassword(loginPassword.text);
+    Map<String, dynamic> emailValidationResult = isValidEmail(loginEmail.text);
+    Map<String, dynamic> passwordValidationResult =
+        isValidPassword(loginPassword.text);
 
     setState(() {
-      emailError = emailValidationResult?.error ?? null;
-      passwordError = passwordValidationResult?.error ?? null;
+      emailError = emailValidationResult["error"] ?? null;
+      passwordError = passwordValidationResult["error"] ?? null;
     });
 
-    if (emailValidationResult?.is_valid && passwordValidationResult?.is_valid) {
+    if (emailValidationResult["is_valid"] &&
+        passwordValidationResult["is_valid"]) {
       //
       User? userData = await login(loginEmail.text, loginPassword.text);
+      print(userData);
       if (userData != null) {
-// todo: redirect to home screen
+        // todo: redirect to home screen
+        final SharedPreferences prefs = await _prefs;
+        prefs.setString("userId", userData.id as String);
+        prefs.setString("userType", userData.userType as String);
+        prefs.setString("userName", userData.username as String);
+        prefs.setString("canteenName", userData.canteenName as String);
+        prefs.setString("email", userData.email as String);
+        prefs.setString("mobileNo", userData.mobileNo as String);
+
+        if (userData.userType == "USER") {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => CanteenList()));
+        } else if (userData.userType == "CANTEEN") {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => Home()));
+        }
       }
     }
   }

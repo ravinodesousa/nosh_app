@@ -7,6 +7,7 @@ import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/add_menu_item.dart';
 import 'package:nosh_app/screens/edit_menu_item.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuList extends StatefulWidget {
   const MenuList({super.key});
@@ -16,6 +17,8 @@ class MenuList extends StatefulWidget {
 }
 
 class _MenuListState extends State<MenuList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool _loading = true;
   List<Product> _menuList = [];
 
@@ -27,8 +30,11 @@ class _MenuListState extends State<MenuList> {
   }
 
   void initMenu() async {
-    List<Product> temp =
-        await getAllMenuItems("6457ff37b9f3e807e11cccd6", true);
+    final SharedPreferences prefs = await _prefs;
+
+    List<Product> temp = await getAllMenuItems(
+        prefs.getString("userId") as String, true,
+        category: null);
     setState(() {
       _menuList = temp;
       _loading = false;

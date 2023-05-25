@@ -8,6 +8,7 @@ import 'package:nosh_app/helpers/storage.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddMenuItem extends StatefulWidget {
   const AddMenuItem({super.key});
@@ -17,6 +18,8 @@ class AddMenuItem extends StatefulWidget {
 }
 
 class _AddMenuItemState extends State<AddMenuItem> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   final ImagePicker picker = ImagePicker();
   XFile? image;
 
@@ -102,6 +105,8 @@ class _AddMenuItemState extends State<AddMenuItem> {
   }
 
   void addItemHandler() async {
+    final SharedPreferences prefs = await _prefs;
+
     dynamic itemNameValidation =
         itemName.text.trim() == "" ? "Item name is required" : null;
 
@@ -125,7 +130,7 @@ class _AddMenuItemState extends State<AddMenuItem> {
 
       if (uploadedFileurl != '') {
         Map<String, dynamic> result = await addItem(
-            "6457ff37b9f3e807e11cccd6",
+            prefs.getString("userId") as String,
             itemName.text,
             uploadedFileurl,
             itemAmount.text,
@@ -299,7 +304,11 @@ class _AddMenuItemState extends State<AddMenuItem> {
                               }).toList(),
                               // After selecting the desired option,it will
                               // change button value to selected value
-                              onChanged: (String? newValue) {},
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _categorydropdownvalue = newValue!;
+                                });
+                              },
                             ),
                           ),
                         ],
@@ -332,7 +341,11 @@ class _AddMenuItemState extends State<AddMenuItem> {
                               }).toList(),
                               // After selecting the desired option,it will
                               // change button value to selected value
-                              onChanged: (String? newValue) {},
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _typedropdownvalue = newValue!;
+                                });
+                              },
                             ),
                           ),
                         ],

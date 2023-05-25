@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/notification_list.dart';
+import 'package:nosh_app/screens/order_list.dart';
 import 'package:nosh_app/screens/splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDrawer extends StatefulWidget {
   @override
@@ -8,6 +12,8 @@ class UserDrawer extends StatefulWidget {
 }
 
 class _UserDrawerState extends State<UserDrawer> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   var selectedItem = -1;
   List<String> username = [];
 
@@ -19,6 +25,14 @@ class _UserDrawerState extends State<UserDrawer> {
     super.initState();
     username = ["User", "1"];
     counter = 0;
+  }
+
+  void logoutHandler() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.clear().then((value) => {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => Splash()))
+        });
   }
 
   Widget getDrawerItem(IconData icon, String name, int pos, {var tags, ind}) {
@@ -44,21 +58,23 @@ class _UserDrawerState extends State<UserDrawer> {
               ),
               actions: [
                 ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: Text(
                     "Yes",
                     style: TextStyle(
-                      color: Colors.blue,
+                      color: Colors.white,
                     ),
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => Splash()));
+                    logoutHandler();
                   },
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   child: Text("No",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Colors.white,
                       )),
                   onPressed: () {
                     Navigator.pop(context);
@@ -152,28 +168,30 @@ class _UserDrawerState extends State<UserDrawer> {
                       ),
                     )),
                 SizedBox(height: 30),
-                getDrawerItem(Icons.dashboard, "Home", 1, ind: "home"),
+                getDrawerItem(Icons.dashboard, "Home", 1,
+                    ind: "home", tags: Home()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list, "All Orders", 1, ind: "all-orders"),
+                getDrawerItem(Icons.list, "All Orders", 2,
+                    ind: "all-orders", tags: OrderList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list_alt, "Tokens", 1, ind: "tokens"),
+                getDrawerItem(Icons.list_alt, "Tokens", 3, ind: "tokens"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Notifications", 1,
-                    ind: "notifications"),
+                getDrawerItem(Icons.notifications, "Notifications", 4,
+                    ind: "notifications", tags: NotificationList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
+                getDrawerItem(Icons.logout, "Logout", 5, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

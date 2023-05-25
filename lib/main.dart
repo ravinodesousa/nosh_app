@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Palette.kToDark,
         // primaryColor: Color.fromRGBO(94, 165, 152, 0),
       ),
-      home: CanteenList(),
+      home: Splash(),
     );
   }
 }
