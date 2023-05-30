@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:nosh_app/helpers/widgets.dart';
-import 'package:nosh_app/screens/splash.dart';
+import 'package:nosh_app/screens/auth.dart';
 
 class VerifyOtp extends StatefulWidget {
   const VerifyOtp({super.key});
@@ -107,7 +107,7 @@ Widget OtpView(BuildContext context) {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Splash()),
+                      MaterialPageRoute(builder: (context) => Auth()),
                     );
                   },
                   child: Container(

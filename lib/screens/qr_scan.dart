@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:nosh_app/config/palette.dart';
 
 class QRScan extends StatefulWidget {
   const QRScan({super.key});
@@ -12,6 +13,10 @@ class _QRScanState extends State<QRScan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Palette.brown,
+        title: Text("Scan QR"),
+      ),
       body: MobileScanner(
         fit: BoxFit.cover,
         onDetect: (capture) {

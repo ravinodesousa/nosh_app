@@ -13,6 +13,7 @@ import 'package:nosh_app/screens/order_list.dart';
 import 'package:nosh_app/screens/order_status.dart';
 import 'package:nosh_app/screens/order_summary.dart';
 import 'package:nosh_app/screens/qr_scan.dart';
+import 'package:nosh_app/screens/auth.dart';
 import 'package:nosh_app/screens/splash.dart';
 import 'package:nosh_app/screens/verify_otp.dart';
 

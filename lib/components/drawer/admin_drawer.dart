@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
-import 'package:nosh_app/screens/splash.dart';
+import 'package:nosh_app/screens/auth.dart';
 
 class AdminDrawer extends StatefulWidget {
   const AdminDrawer({super.key});
@@ -53,8 +54,8 @@ class _AdminDrawerState extends State<AdminDrawer> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => Splash()));
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) => Auth()));
                   },
                 ),
                 ElevatedButton(
@@ -117,7 +118,7 @@ class _AdminDrawerState extends State<AdminDrawer> {
                     child: Container(
                       padding: EdgeInsets.fromLTRB(10, 40, 20, 40),
                       decoration: new BoxDecoration(
-                          color: Color(0XFF5959fc),
+                          color: Palette.brown,
                           borderRadius: new BorderRadius.only(
                               bottomRight: const Radius.circular(24.0),
                               topRight: const Radius.circular(24.0))),
@@ -154,7 +155,7 @@ class _AdminDrawerState extends State<AdminDrawer> {
                       ),
                     )),
                 SizedBox(height: 30),
-                getDrawerItem(Icons.dashboard, "Home", 1, ind: "home"),
+                getDrawerItem(Icons.home, "Home", 1, ind: "home"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

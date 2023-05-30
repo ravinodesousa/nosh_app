@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:nosh_app/screens/notification_list.dart';
 import 'package:nosh_app/screens/order_list.dart';
 import 'package:nosh_app/screens/qr_scan.dart';
-import 'package:nosh_app/screens/splash.dart';
+import 'package:nosh_app/screens/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CanteenDrawer extends StatefulWidget {
@@ -35,7 +36,7 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
     final SharedPreferences prefs = await _prefs;
     prefs.clear().then((value) => {
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Splash()))
+              .push(MaterialPageRoute(builder: (context) => Auth()))
         });
   }
 
@@ -135,7 +136,7 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                     child: Container(
                       padding: EdgeInsets.fromLTRB(10, 40, 20, 40),
                       decoration: new BoxDecoration(
-                          color: Color(0XFF5959fc),
+                          color: Palette.brown,
                           borderRadius: new BorderRadius.only(
                               bottomRight: const Radius.circular(24.0),
                               topRight: const Radius.circular(24.0))),
@@ -172,8 +173,7 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                       ),
                     )),
                 SizedBox(height: 30),
-                getDrawerItem(Icons.dashboard, "Home", 1,
-                    ind: "home", tags: Home()),
+                getDrawerItem(Icons.home, "Home", 1, ind: "home", tags: Home()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
