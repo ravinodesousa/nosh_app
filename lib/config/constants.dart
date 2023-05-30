@@ -1,2 +1,2 @@
-final baseURL = "https://dbf6-43-249-184-225.ngrok-free.app/";
-// final baseURL = "http://10.0.2.2:8000";
+final baseURL = "https://24d1-43-249-184-104.ngrok-free.app/";
+// final baseURL = "http://nosh.eu-4.evennode.com/";

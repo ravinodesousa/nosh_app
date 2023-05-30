@@ -52,6 +52,7 @@ dependencies:
   firebase_core_platform_interface: ^4.8.0
   permission_handler: ^10.2.0
   fluttertoast: ^8.2.2
+  firebase_messaging: ^14.6.1
 
 dev_dependencies:
   flutter_test:

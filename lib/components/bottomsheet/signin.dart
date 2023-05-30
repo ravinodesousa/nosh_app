@@ -25,6 +25,7 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool _loading = false;
+  bool obscure_password = true;
   String? emailError = null;
   String? passwordError = null;
 
@@ -133,7 +134,7 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
                       color: Colors.white70,
                       child: TextFormField(
                         style: TextStyle(color: Colors.grey.shade700),
-                        obscureText: true,
+                        obscureText: obscure_password,
                         decoration: InputDecoration(
                           errorText: passwordError,
                           labelText: "PASSWORD",
@@ -143,9 +144,16 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
                             color: Colors.black,
                           ),
                           hintText: "Enter your password",
-                          suffixIcon: Icon(
-                            Icons.visibility_off,
-                            color: Colors.grey,
+                          suffixIcon: InkWell(
+                            onTap: () {
+                              setState(() {
+                                obscure_password = !obscure_password;
+                              });
+                            },
+                            child: Icon(
+                              Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
                           ),
                           enabledBorder: UnderlineInputBorder(
                               borderSide:

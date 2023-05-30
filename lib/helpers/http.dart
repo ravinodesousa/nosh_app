@@ -99,6 +99,86 @@ Future<Map<String, dynamic>> signup(
   }
 }
 
+Future<Map<String, dynamic>?> sendOTP(String mobileNo, String type) async {
+  try {
+    final url = Uri.parse(baseURL + "user/send-otp");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({"mobileNo": mobileNo, "type": type}),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data12322 : ${data}");
+      return {"status": 200, "message": data["message"]};
+    } else {
+      // todo: show alert from backend
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data error : ${data}");
+      return {"status": 500, "message": data["message"] ?? "Request failed"};
+    }
+  } catch (err) {
+    print(err);
+    return {"status": 500, "message": "Failed to send OTP"};
+  }
+}
+
+Future<Map<String, dynamic>?> verifyOTP(
+    String mobileNo, String otp, String type) async {
+  try {
+    final url = Uri.parse(baseURL + "user/verify-otp");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({"mobileNo": mobileNo, "otp": otp, "type": type}),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data12322 : ${data}");
+      return {"status": 200, "message": data["message"]};
+    } else {
+      // todo: show alert from backend
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data error : ${data}");
+      return {"status": 500, "message": data["message"] ?? "Request failed"};
+    }
+  } catch (err) {
+    print(err);
+    return {"status": 500, "message": "Failed to verify OTP"};
+  }
+}
+
+Future<Map<String, dynamic>?> resetUserPassword(
+    String mobileNo, String password) async {
+  try {
+    final url = Uri.parse(baseURL + "user/reset-password");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({
+        "mobileNo": mobileNo,
+        "password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data12322 : ${data}");
+      return {"status": 200, "message": data["message"]};
+    } else {
+      // todo: show alert from backend
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data error : ${data}");
+      return {"status": 500, "message": data["message"] ?? "Request failed"};
+    }
+  } catch (err) {
+    print(err);
+    return {"status": 500, "message": "Failed to verify OTP"};
+  }
+}
+
 Future<List<User>> getAllUsers(String userType) async {
   try {
     final url = Uri.parse(baseURL + "user/users");
