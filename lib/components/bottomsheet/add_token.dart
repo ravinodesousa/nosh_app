@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/config/constants.dart';
 import 'package:nosh_app/data/user.dart';
@@ -102,6 +103,15 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
     * */
     print(
         "Payment Failed \n Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}\nresponse:${response.toString()}");
+
+    Fluttertoast.showToast(
+        msg: response.message ?? '',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 
   void handlePaymentSuccessResponse(PaymentSuccessResponse response) async {

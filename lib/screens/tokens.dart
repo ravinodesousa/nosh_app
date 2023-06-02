@@ -50,24 +50,6 @@ class _TokensState extends State<Tokens> {
     });
   }
 
-  void orderStatusChangeHandler(String orderId, String status) async {
-    setState(() {
-      _loading = true;
-      _tokenList = [];
-      availableBalance = 0;
-    });
-
-    Map<String, dynamic> result = await updateOrderStatus(orderId, status);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(result["status"] == 200
-          ? "Order Status Updated successfully"
-          : "Failed to Update Order Status. Please try again."),
-    ));
-
-    initData();
-  }
-
   bottomsheetaddtoken(BuildContext context) {
     showModalBottomSheet(
         isScrollControlled: true,
