@@ -5,6 +5,7 @@ import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/notification_list.dart';
 import 'package:nosh_app/screens/order_list.dart';
 import 'package:nosh_app/screens/auth.dart';
+import 'package:nosh_app/screens/tokens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDrawer extends StatefulWidget {
@@ -180,7 +181,8 @@ class _UserDrawerState extends State<UserDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list_alt, "Tokens", 3, ind: "tokens"),
+                getDrawerItem(Icons.list_alt, "Tokens", 3,
+                    ind: "tokens", tags: Tokens()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

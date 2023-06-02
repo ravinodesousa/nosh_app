@@ -8,6 +8,7 @@ import 'package:nosh_app/data/cart_item.dart';
 import 'package:nosh_app/data/institution.dart';
 import 'package:nosh_app/data/order_item.dart';
 import 'package:nosh_app/data/product.dart';
+import 'package:nosh_app/data/token_history.dart';
 import 'package:nosh_app/data/user.dart';
 
 final Map<String, String> headers = {
@@ -533,6 +534,71 @@ Future<Map<String, dynamic>> updateOrderStatus(
     };
 
     final url = Uri.parse(baseURL + "order/update-order-status");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
+  }
+}
+
+Future<Map<String, dynamic>> getTokenHistory(String userId) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+    };
+
+    final url = Uri.parse(baseURL + "user/token-history");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> res = {};
+      List<TokenHistory> list = [];
+      // print(response.body);
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("date1 : ${data}");
+
+      data["token_history"]
+          .forEach((item) => {list.add(TokenHistory.fromJson(item))});
+      print("list1 : ${list}");
+      res["balance"] = data["balance"];
+      res["token_history"] = list;
+
+      return res;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err454545 : ${err}");
+    return {"balance": 0, "token_history": []};
+  }
+}
+
+Future<Map<String, dynamic>> addTokenToAccoount(
+    String userId, String txnId, String amount) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+      "txnId": txnId,
+      "amount": amount,
+    };
+
+    final url = Uri.parse(baseURL + "user/add-tokens");
     final response = await http.post(
       url,
       headers: headers,
