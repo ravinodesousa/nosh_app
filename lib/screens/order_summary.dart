@@ -1,21 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/config/constants.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/data/cart_item.dart';
+import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/order_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class OrderSummary extends StatefulWidget {
   const OrderSummary(
-      {super.key, required this.cartItems, required this.timeSlot});
+      {super.key,
+      required this.cartItems,
+      required this.timeSlot,
+      required this.userDetails});
 
   final List<CartItem> cartItems;
   final String timeSlot;
+  final User? userDetails;
 
   @override
   State<OrderSummary> createState() => _OrderSummaryState();
@@ -39,6 +49,8 @@ class _OrderSummaryState extends State<OrderSummary> {
   String userName = '';
   String mobileNo = '';
 
+  num orderTotal = 0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -55,7 +67,17 @@ class _OrderSummaryState extends State<OrderSummary> {
       userName = prefs.getString("userName") as String;
       mobileNo = prefs.getString("mobileNo") as String;
       _orderitems = widget.cartItems;
+      orderTotal = calculateOrderTotal();
     });
+  }
+
+  num calculateOrderTotal() {
+    num total = 0;
+    widget.cartItems.forEach((item) {
+      total += (item.price! * (item.quantity ?? 0));
+    });
+
+    return total;
   }
 
   void quantityBtnHandler(String action, int index) {
@@ -70,18 +92,43 @@ class _OrderSummaryState extends State<OrderSummary> {
         _orderitems = _orderitems;
       });
     }
+
+    setState(() {
+      orderTotal = calculateOrderTotal();
+    });
   }
 
-  void placeOrderHandler() async {
+  void placeOrderHandler(String? txnId) async {
     setState(() {
       _loading = true;
     });
-    Map<String, dynamic> data = await placeOrder(
-        userId, canteenId, widget.timeSlot, _paymentdropdownvalue, _orderitems);
+
+    // ONLINE, TOKEN, COD
+    String paymentMode = _paymentdropdownvalue == "Online"
+        ? "ONLINE"
+        : _paymentdropdownvalue == "Token"
+            ? "TOKEN"
+            : "COD";
+
+    Map<String, dynamic> data = await placeOrder(userId, canteenId,
+        widget.timeSlot, paymentMode, _orderitems, txnId, orderTotal);
 
     if (data["status"] == 200) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => OrderList()));
+      Fluttertoast.showToast(
+          msg: "Order placed successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      Timer timer = Timer(
+          Duration(seconds: 2),
+          () => {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => OrderList()))
+              });
     } else {
       Fluttertoast.showToast(
           msg: data["message"],
@@ -97,6 +144,61 @@ class _OrderSummaryState extends State<OrderSummary> {
       _loading = false;
     });
   }
+
+  /* Payment code START */
+
+  void initPayment() {
+    Razorpay razorpay = Razorpay();
+    var options = {
+      'key': razorpayKey,
+      'amount': orderTotal * 100,
+      'name': 'Nosh',
+      'retry': {'enabled': true, 'max_count': 1},
+      'send_sms_hash': true,
+    };
+    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentErrorResponse);
+    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccessResponse);
+    razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWalletSelected);
+    razorpay.open(options);
+  }
+
+  void handlePaymentErrorResponse(PaymentFailureResponse response) {
+    /*
+    * PaymentFailureResponse contains three values:
+    * 1. Error Code
+    * 2. Error Description
+    * 3. Metadata
+    * */
+    print(
+        "Payment Failed \n Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}\nresponse:${response.toString()}");
+
+    Fluttertoast.showToast(
+        msg: response.message ?? '',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
+  void handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
+    /*
+    * Payment Success Response contains three values:
+    * 1. Order ID
+    * 2. Payment ID
+    * 3. Signature
+    * */
+    print("Payment Successful \n Payment ID: ${response.toString()}");
+
+    placeOrderHandler(response.paymentId);
+  }
+
+  void handleExternalWalletSelected(ExternalWalletResponse response) {
+    print("External Wallet Selected \n ${response.toString()}");
+  }
+
+  /* Payment code END */
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +284,26 @@ class _OrderSummaryState extends State<OrderSummary> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
+                    "Order Total",
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "${orderTotal} /-",
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Palette.brown),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
                     "Payment Method",
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                   ),
@@ -213,6 +335,29 @@ class _OrderSummaryState extends State<OrderSummary> {
                   ),
                 ],
               ),
+              if (_paymentdropdownvalue == "Token" &&
+                  widget.userDetails != null) ...[
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Available Tokens : ",
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic),
+                    ),
+                    Text(
+                      "${widget.userDetails?.tokenBalance}",
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              ],
               SizedBox(
                 height: 20,
               ),
@@ -361,7 +506,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      placeOrderHandler();
+                      if (_paymentdropdownvalue == "Online") {
+                        initPayment();
+                      } else {
+                        placeOrderHandler(null);
+                      }
                     },
                     child: const Text('Place Order'),
                   ),

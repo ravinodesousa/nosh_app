@@ -61,7 +61,22 @@ class _OrderListState extends State<OrderList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Orders")),
+      appBar: AppBar(
+        title: Text("Orders"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
+      ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black54,
@@ -186,60 +201,72 @@ class _OrderListState extends State<OrderList> {
                                 ]),
                               );
                             }),
-                            // userType == "CANTEEN"
-                            //     ?
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (_orders[index].orderStatus == "PENDING")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          _orders[index].id ?? '', "ACCEPTED");
-                                    },
-                                    child: Text("ACCEPT"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  ),
-                                if (_orders[index].orderStatus == "ACCEPTED")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          _orders[index].id ?? '', "READY");
-                                    },
-                                    child: Text("READY"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  ),
-                                if (_orders[index].orderStatus == "READY")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          _orders[index].id ?? '', "DELIVERED");
-                                    },
-                                    child: Text("DELIVERED"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
+                            userType == "CANTEEN"
+                                ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (_orders[index].orderStatus ==
+                                          "PENDING")
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            orderStatusChangeHandler(
+                                                _orders[index].id ?? '',
+                                                "ACCEPTED");
+                                          },
+                                          child: Text("ACCEPT"),
+                                          style: ElevatedButton.styleFrom(
+                                              textStyle:
+                                                  TextStyle(fontSize: 12),
+                                              padding: EdgeInsets.all(10),
+                                              backgroundColor: Colors.green,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12))),
+                                        ),
+                                      if (_orders[index].orderStatus ==
+                                          "ACCEPTED")
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            orderStatusChangeHandler(
+                                                _orders[index].id ?? '',
+                                                "READY");
+                                          },
+                                          child: Text("READY"),
+                                          style: ElevatedButton.styleFrom(
+                                              textStyle:
+                                                  TextStyle(fontSize: 12),
+                                              padding: EdgeInsets.all(10),
+                                              backgroundColor: Colors.green,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12))),
+                                        ),
+                                      if (_orders[index].orderStatus == "READY")
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            orderStatusChangeHandler(
+                                                _orders[index].id ?? '',
+                                                "DELIVERED");
+                                          },
+                                          child: Text("DELIVERED"),
+                                          style: ElevatedButton.styleFrom(
+                                              textStyle:
+                                                  TextStyle(fontSize: 12),
+                                              padding: EdgeInsets.all(10),
+                                              backgroundColor: Colors.green,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12))),
+                                        )
+                                    ],
                                   )
-                              ],
-                            )
-                            // : SizedBox()
+                                : SizedBox()
                           ]),
                     ),
                   );

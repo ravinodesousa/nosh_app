@@ -11,6 +11,7 @@ import 'package:nosh_app/helpers/widgets.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:nosh_app/screens/cart.dart';
 import 'package:nosh_app/screens/category_item.dart';
+import 'package:nosh_app/screens/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -149,10 +150,12 @@ class _HomeState extends State<Home> {
                                   size: 25,
                                 ),
                                 onPressed: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => Search()));
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Search(),
+                                    ),
+                                  );
                                 },
                               ),
                               userType == "USER"

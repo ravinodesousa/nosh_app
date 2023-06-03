@@ -241,6 +241,37 @@ Future<List<Product>> getAllMenuItems(String userId, bool showAllItems,
   }
 }
 
+Future<List<Product>> getSearchedItems(
+    String canteenId, String searchedItem) async {
+  try {
+    Map<String, dynamic> data = {
+      "canteenId": canteenId,
+      "searchedItem": searchedItem
+    };
+
+    final url = Uri.parse(baseURL + "product/search");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      List<Product> list = [];
+      List data = jsonDecode(response.body);
+      print("date1 : ${data}");
+      data.forEach((item) => {list.add(Product.fromJson(item))});
+      print("list1 : ${list}");
+      return list;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print(err);
+    return [];
+  }
+}
+
 Future<Map<String, dynamic>> addItem(String userId, String itemName,
     String itemImage, String itemAmount, String category, String type) async {
   try {
@@ -453,8 +484,14 @@ Future<Map<String, dynamic>> deleteFromCart(String id) async {
   }
 }
 
-Future<Map<String, dynamic>> placeOrder(String userId, String canteenId,
-    String timeslot, String paymentMode, List<CartItem> cartItems) async {
+Future<Map<String, dynamic>> placeOrder(
+    String userId,
+    String canteenId,
+    String timeslot,
+    String paymentMode,
+    List<CartItem> cartItems,
+    String? txnId,
+    num totalAmount) async {
   try {
     List<Map<String, dynamic>> newCartItems = [];
 
@@ -471,7 +508,9 @@ Future<Map<String, dynamic>> placeOrder(String userId, String canteenId,
       "canteenId": canteenId,
       "timeslot": timeslot,
       "paymentMode": paymentMode,
-      "cartItems": newCartItems
+      "cartItems": newCartItems,
+      "txnId": txnId,
+      "totalAmount": totalAmount
     };
 
     final url = Uri.parse(baseURL + "order/place-order");
@@ -615,5 +654,30 @@ Future<Map<String, dynamic>> addTokenToAccoount(
   } catch (err) {
     print("err : ${err}");
     return {"status": 500};
+  }
+}
+
+Future<User?> getUserDetails(String userId) async {
+  try {
+    final url = Uri.parse(baseURL + "user/user-details");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({"userId": userId}),
+    );
+
+    if (response.statusCode == 200) {
+      User userDetails = User();
+      print("response ${response.body}");
+      userDetails = User.fromJson(jsonDecode(response.body));
+      print("data ${userDetails}");
+
+      return userDetails;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print(err);
+    return null;
   }
 }

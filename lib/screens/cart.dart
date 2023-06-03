@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -21,6 +22,7 @@ class _CartState extends State<Cart> {
 
   bool _loading = true;
   List<CartItem> _cartitems = [];
+  User? userDetails = null;
 
   String _timeslotdropdownvalue = '09:00 AM - 10:00 AM';
   var _timeslots = [
@@ -42,6 +44,8 @@ class _CartState extends State<Cart> {
 
   void initData() async {
     final SharedPreferences prefs = await _prefs;
+
+    userDetails = await getUserDetails(prefs.getString("userId") as String);
 
     List<CartItem> temp =
         await getCartItems(prefs.getString("userId") as String);
@@ -229,9 +233,9 @@ class _CartState extends State<Cart> {
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => OrderSummary(
-                              cartItems: _cartitems,
-                              timeSlot: _timeslotdropdownvalue,
-                            )));
+                            cartItems: _cartitems,
+                            timeSlot: _timeslotdropdownvalue,
+                            userDetails: userDetails)));
                   },
                   child: const Text('Order'),
                 ),

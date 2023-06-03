@@ -20,7 +20,21 @@ Map<String, dynamic> isValidPassword(String password) {
     return {
       "is_valid": false,
       "error":
-          "Invalid Password. PAsswors should contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+          "Invalid Password. Password should contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character"
+    };
+  }
+  return {"is_valid": true, "error": null};
+}
+
+Map<String, dynamic> isValidMobileNo(String mobileNo) {
+  if (mobileNo == '') {
+    return {"is_valid": false, "error": "Mobile No required"};
+  }
+  if (!RegExp(r'^[789]\d{9}$').hasMatch(mobileNo)) {
+    return {
+      "is_valid": false,
+      "error":
+          "Invalid Mobile No. It shouldn't contain characters and country code."
     };
   }
   return {"is_valid": true, "error": null};
