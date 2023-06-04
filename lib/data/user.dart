@@ -37,7 +37,8 @@ class User {
         id: json["_id"],
         username: json["username"],
         canteenName: json["canteenName"],
-        institution: json["institution"],
+        institution:
+            json["institution"] != null ? json["institution"]["name"] : '',
         profilePicture: json["profilePicture"],
         email: json["email"],
         isEmailConfirmed: json["isEmailConfirmed"],

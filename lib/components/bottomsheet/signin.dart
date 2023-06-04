@@ -5,6 +5,7 @@ import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/validation.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
+import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +33,22 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
   TextEditingController loginEmail = new TextEditingController();
   TextEditingController loginPassword = new TextEditingController();
 
+  String? fcmToken = '';
+
+  @override
+  void initState() {
+    super.initState();
+    initData();
+  }
+
+  void initData() async {
+    final SharedPreferences prefs = await _prefs;
+
+    setState(() {
+      fcmToken = prefs.getString("fcmToken");
+    });
+  }
+
   void loginHandler() async {
     Map<String, dynamic> emailValidationResult = isValidEmail(loginEmail.text);
     Map<String, dynamic> passwordValidationResult =
@@ -45,7 +62,8 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
     if (emailValidationResult["is_valid"] &&
         passwordValidationResult["is_valid"]) {
       //
-      User? userData = await login(loginEmail.text, loginPassword.text);
+      User? userData =
+          await login(fcmToken, loginEmail.text, loginPassword.text);
       print(userData);
       if (userData != null) {
         // todo: redirect to home screen
@@ -63,6 +81,9 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
         } else if (userData.userType == "CANTEEN") {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => Home()));
+        } else if (userData.userType == "ADMIN") {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => Dashboard()));
         }
       }
     }

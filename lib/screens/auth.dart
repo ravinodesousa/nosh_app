@@ -46,10 +46,14 @@ class _AuthState extends State<Auth> {
         ),
         backgroundColor: Colors.white,
         context: context,
-        builder: (context) {
-          return SignupBottomSheet(onSigninCallback: (context) {
-            bottomsheetsignin(context);
-          });
+        builder: (ctx) {
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: SignupBottomSheet(onSigninCallback: (context) {
+              bottomsheetsignin(context);
+            }),
+          );
         });
   }
 
@@ -64,10 +68,14 @@ class _AuthState extends State<Auth> {
         ),
         backgroundColor: Colors.white,
         context: context,
-        builder: (builder) {
-          return PasswordResetBottomSheet(onSigninCallback: (context) {
-            bottomsheetsignin(context);
-          });
+        builder: (ctx) {
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: PasswordResetBottomSheet(onSigninCallback: (context) {
+              bottomsheetsignin(context);
+            }),
+          );
         });
   }
 
@@ -82,11 +90,15 @@ class _AuthState extends State<Auth> {
         ),
         backgroundColor: Colors.white,
         context: context,
-        builder: (builder) {
-          return SigninBottomSheet(
-              onSignupCallback: (context) => {bottomsheetsignup(context)},
-              onResetPasswordCallback: (context) =>
-                  {bottomsheetreset(context)});
+        builder: (ctx) {
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: SigninBottomSheet(
+                onSignupCallback: (context) => {bottomsheetsignup(context)},
+                onResetPasswordCallback: (context) =>
+                    {bottomsheetreset(context)}),
+          );
         });
   }
 

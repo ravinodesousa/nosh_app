@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/commission.dart';
+import 'package:nosh_app/screens/dashboard.dart';
+import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/menu_list.dart';
+import 'package:nosh_app/screens/notification_list.dart';
+import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/payments.dart';
+import 'package:nosh_app/screens/qr_scan.dart';
 import 'package:nosh_app/screens/auth.dart';
+import 'package:nosh_app/screens/user_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminDrawer extends StatefulWidget {
   const AdminDrawer({super.key});
@@ -11,6 +21,8 @@ class AdminDrawer extends StatefulWidget {
 }
 
 class _AdminDrawerState extends State<AdminDrawer> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   var selectedItem = -1;
   List<String> username = [];
 
@@ -22,6 +34,14 @@ class _AdminDrawerState extends State<AdminDrawer> {
     super.initState();
     username = ["User", "1"];
     counter = 0;
+  }
+
+  void logoutHandler() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.clear().then((value) => {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => Auth()))
+        });
   }
 
   Widget getDrawerItem(IconData icon, String name, int pos, {var tags, ind}) {
@@ -47,21 +67,23 @@ class _AdminDrawerState extends State<AdminDrawer> {
               ),
               actions: [
                 ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: Text(
                     "Yes",
                     style: TextStyle(
-                      color: Colors.blue,
+                      color: Colors.white,
                     ),
                   ),
                   onPressed: () {
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) => Auth()));
+                    logoutHandler();
                   },
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   child: Text("No",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Colors.white,
                       )),
                   onPressed: () {
                     Navigator.pop(context);
@@ -155,28 +177,43 @@ class _AdminDrawerState extends State<AdminDrawer> {
                       ),
                     )),
                 SizedBox(height: 30),
-                getDrawerItem(Icons.home, "Home", 1, ind: "home"),
+                getDrawerItem(Icons.dashboard, "Dashboard", 1,
+                    ind: "dashboard", tags: Dashboard()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list, "All Orders", 1, ind: "all-orders"),
+                getDrawerItem(Icons.list, "User List", 2,
+                    ind: "user-list",
+                    tags: UserList(
+                      userType: "USER",
+                    )),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list_alt, "Tokens", 1, ind: "tokens"),
+                getDrawerItem(Icons.list, "Canteen List", 3,
+                    ind: "canteen-list",
+                    tags: UserList(
+                      userType: "CANTEEN",
+                    )),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Notifications", 1,
-                    ind: "notifications"),
+                getDrawerItem(Icons.money, "Commission", 4,
+                    ind: "commission", tags: Commission()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
+                getDrawerItem(Icons.payments, "Payments", 5,
+                    ind: "payments", tags: Payments()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
+                getDrawerItem(Icons.logout, "Logout", 6, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

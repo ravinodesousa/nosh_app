@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/screens/auth.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
+import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +34,8 @@ class _SplashState extends State<Splash> {
   }
 
   void checkAuthStatus() async {
+    print("Splash screen called");
+
     final SharedPreferences prefs = await _prefs;
     if (prefs.containsKey("userId") &&
         prefs.containsKey("userType") &&
@@ -46,7 +49,13 @@ class _SplashState extends State<Splash> {
       } else if (prefs.getString("userType") == "CANTEEN") {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Home()));
+      } else if (prefs.getString("userType") == "ADMIN") {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Dashboard()));
       }
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Auth()));
     }
   }
 

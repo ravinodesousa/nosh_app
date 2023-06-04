@@ -10,6 +10,8 @@ import 'package:nosh_app/data/order_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/data/token_history.dart';
 import 'package:nosh_app/data/user.dart';
+import 'package:nosh_app/data/payment.dart';
+import 'package:nosh_app/screens/payments.dart';
 
 final Map<String, String> headers = {
   'Content-Type': 'application/json; charset=UTF-8'
@@ -34,16 +36,18 @@ Future<List<Institution>> getAllInstitutions() async {
   }
 }
 
-Future<User?> login(String email, String password) async {
+Future<User?> login(String? fcmToken, String email, String password) async {
   try {
     final url = Uri.parse(baseURL + "user/login");
     final response = await http.post(
       url,
       headers: headers,
-      body: jsonEncode({"email": email, "password": password}),
+      body: jsonEncode(
+          {"email": email, "password": password, "fcmToken": fcmToken}),
     );
 
     if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
       User data = User.fromJson(jsonDecode(response.body));
       return data;
     } else {
@@ -180,13 +184,15 @@ Future<Map<String, dynamic>?> resetUserPassword(
   }
 }
 
-Future<List<User>> getAllUsers(String userType) async {
+Future<List<User>> getAllUsers(String userType,
+    {bool fetchInactiveUsers = false}) async {
   try {
     final url = Uri.parse(baseURL + "user/users");
     final response = await http.post(
       url,
       headers: headers,
-      body: jsonEncode({"userType": userType}),
+      body: jsonEncode(
+          {"userType": userType, "fetchInactiveUsers": fetchInactiveUsers}),
     );
 
     if (response.statusCode == 200) {
@@ -202,6 +208,36 @@ Future<List<User>> getAllUsers(String userType) async {
   } catch (err) {
     print(err);
     return [];
+  }
+}
+
+Future<Map<String, dynamic>> updateUserStatus(
+  String id,
+  String status,
+) async {
+  try {
+    Map<String, dynamic> data = {
+      "id": id,
+      "status": status,
+    };
+
+    final url = Uri.parse(baseURL + "user/update-status");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
   }
 }
 
@@ -679,5 +715,150 @@ Future<User?> getUserDetails(String userId) async {
   } catch (err) {
     print(err);
     return null;
+  }
+}
+
+Future<List<Map<String, dynamic>>> getNotifications(
+  String userId,
+) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+    };
+
+    final url = Uri.parse(baseURL + "notification/");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      // print(response.body);
+      List<Map<String, dynamic>> list = jsonDecode(response.body);
+      print("list : ${list}");
+      return list;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return [];
+  }
+}
+
+Future<Map<String, dynamic>> getDashboardData(
+    String userId, String userType, String? startDate, String? endDate) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+      "userType": userType,
+      "startDate": startDate,
+      "endDate": endDate
+    };
+
+    final url = Uri.parse(baseURL + "user/dashboard");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      // print(response.body);
+      Map<String, dynamic> data = jsonDecode(response.body);
+      print("data : ${data}");
+      return data;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {};
+  }
+}
+
+Future<Map<String, dynamic>> getCommission(
+  String? date,
+) async {
+  try {
+    Map<String, dynamic> data = {
+      "date": date,
+    };
+
+    final url = Uri.parse(baseURL + "order/commission");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+      Map<String, dynamic> list = jsonDecode(response.body);
+      print("list : ${list}");
+      return list;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {};
+  }
+}
+
+Future<List<Payment>> getPayments(
+  String? date,
+) async {
+  try {
+    Map<String, dynamic> data = {
+      "date": date,
+    };
+
+    final url = Uri.parse(baseURL + "order/payments");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      List<Payment> list = [];
+      // print(response.body);
+      List data = jsonDecode(response.body);
+      print("date1 : ${data}");
+      data.forEach((item) => {list.add(Payment.fromJson(item))});
+      print("list1 : ${list}");
+      return list;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return [];
+  }
+}
+
+Future<Map<String, dynamic>> updatePaymentStatus(String id) async {
+  try {
+    Map<String, dynamic> data = {"id": id};
+
+    final url = Uri.parse(baseURL + "order/update-payment-status");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
   }
 }

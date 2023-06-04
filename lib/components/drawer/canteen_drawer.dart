@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:nosh_app/screens/notification_list.dart';
@@ -178,31 +179,37 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list, "View Orders", 2,
+                getDrawerItem(Icons.dashboard, "Dashboard", 2,
+                    ind: "dashboard", tags: Dashboard()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
+                getDrawerItem(Icons.list, "View Orders", 3,
                     ind: "view-orders", tags: OrderList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.list_alt, "Edit Menu", 3,
+                getDrawerItem(Icons.list_alt, "Edit Menu", 4,
                     ind: "edit-menu", tags: MenuList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Notifications", 4,
+                getDrawerItem(Icons.notifications, "Notifications", 5,
                     ind: "notifications", tags: NotificationList()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.notifications, "Scan QR Code", 5,
+                getDrawerItem(Icons.notifications, "Scan QR Code", 6,
                     ind: "scan-qr", tags: QRScan()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 6, ind: "log"),
+                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
