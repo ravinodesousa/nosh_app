@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -191,14 +192,25 @@ class _AddMenuItemState extends State<AddMenuItem> {
                             ? InkWell(
                                 onTap: () async {
                                   await Permission.photos.request();
-                                  var permissionStatus =
-                                      await Permission.photos.status;
-                                  if (permissionStatus.isGranted) {
+                                  var permissionStatus = null;
+
+                                  final androidInfo =
+                                      await DeviceInfoPlugin().androidInfo;
+                                  if (androidInfo.version.sdkInt <= 32) {
+                                    permissionStatus =
+                                        await Permission.storage.status;
+                                  } else {
+                                    permissionStatus =
+                                        await Permission.photos.status;
+                                  }
+
+                                  if (permissionStatus ==
+                                      PermissionStatus.granted) {
                                     imageSelectionHandler();
                                   } else {
                                     // todo : show toast
                                     print(
-                                        'Permission not granted. Try Again with permission access');
+                                        'Permission not granted. Try Again with permission access. ${permissionStatus}');
                                   }
                                 },
                                 child: Image.file(
@@ -254,8 +266,8 @@ class _AddMenuItemState extends State<AddMenuItem> {
                   decoration: InputDecoration(
                     errorText: itemAmountError,
                     labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter amount",
-                    labelText: "Amount",
+                    hintText: "Enter price",
+                    labelText: "Price",
                     prefixIcon: Icon(
                       Icons.money,
                       color: Colors.black,

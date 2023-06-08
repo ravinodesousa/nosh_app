@@ -181,11 +181,11 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
                         style: TextStyle(color: Colors.grey.shade700),
                         decoration: InputDecoration(
                           errorText: amountError,
-                          labelText: "Amount",
+                          labelText: "Price",
                           labelStyle: TextStyle(
                             color: Colors.black,
                           ),
-                          hintText: "Enter amount",
+                          hintText: "Enter price",
                           prefixIcon: Icon(
                             Icons.money,
                             color: Colors.black,

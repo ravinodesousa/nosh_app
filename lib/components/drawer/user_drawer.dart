@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/canteen_list.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/notification_list.dart';
 import 'package:nosh_app/screens/order_list.dart';
@@ -17,16 +18,23 @@ class _UserDrawerState extends State<UserDrawer> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   var selectedItem = -1;
-  List<String> username = [];
-
-  int counter = 0;
+  String? username = '';
+  String? mobileNo = '';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    username = ["User", "1"];
-    counter = 0;
+    initData();
+  }
+
+  void initData() async {
+    final SharedPreferences prefs = await _prefs;
+
+    setState(() {
+      username = prefs.getString("userName") ?? '';
+      mobileNo = prefs.getString("mobileNo") ?? '';
+    });
   }
 
   void logoutHandler() async {
@@ -154,13 +162,13 @@ class _UserDrawerState extends State<UserDrawer> {
                                 children: <Widget>[
                                   SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
-                                    child: text1("Test User 1",
+                                    child: text1(username ?? '',
                                         textColor: Colors.white,
                                         fontFamily: 'Medium',
                                         fontSize: 20.0),
                                   ),
                                   SizedBox(height: 8),
-                                  text("9876543210",
+                                  text(mobileNo ?? '',
                                       textColor: Colors.white, fontSize: 14.0),
                                 ],
                               ),
@@ -193,7 +201,13 @@ class _UserDrawerState extends State<UserDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 5, ind: "log"),
+                getDrawerItem(Icons.storefront, "Canteen List", 5,
+                    ind: "canteen_list", tags: CanteenList()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
+                getDrawerItem(Icons.logout, "Logout", 6, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

@@ -62,6 +62,7 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
     if (emailValidationResult["is_valid"] &&
         passwordValidationResult["is_valid"]) {
       //
+      print("fcmToken ${fcmToken}");
       User? userData =
           await login(fcmToken, loginEmail.text, loginPassword.text);
       print(userData);

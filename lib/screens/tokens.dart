@@ -62,16 +62,20 @@ class _TokensState extends State<Tokens> {
         backgroundColor: Colors.white,
         context: context,
         builder: (builder) {
-          return AddTokenBottomSheet(
-            initCallback: () {
-              setState(() {
-                _loading = true;
-                _tokenList = [];
-                availableBalance = 0;
-              });
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(builder).viewInsets.bottom),
+            child: AddTokenBottomSheet(
+              initCallback: () {
+                setState(() {
+                  _loading = true;
+                  _tokenList = [];
+                  availableBalance = 0;
+                });
 
-              initData();
-            },
+                initData();
+              },
+            ),
           );
         });
   }
@@ -199,7 +203,7 @@ class _TokensState extends State<Tokens> {
                                           children: [
                                             // Text('${index + 1}]'),
                                             Text(
-                                              'Paid Amount : ',
+                                              'Paid Price : ',
                                               style: TextStyle(
                                                   fontStyle: FontStyle.italic,
                                                   fontWeight: FontWeight.bold,

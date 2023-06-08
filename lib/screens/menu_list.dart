@@ -129,7 +129,7 @@ class _MenuListState extends State<MenuList> {
                                     Row(
                                       children: [
                                         Text(
-                                          "Amount: ",
+                                          "Price: ",
                                           style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.black,

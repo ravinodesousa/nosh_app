@@ -5,6 +5,7 @@ import 'package:nosh_app/components/drawer/admin_drawer.dart';
 import 'package:nosh_app/components/drawer/canteen_drawer.dart';
 import 'package:nosh_app/components/drawer/user_drawer.dart';
 import 'package:nosh_app/components/item.dart';
+import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
@@ -199,17 +200,48 @@ class _HomeState extends State<Home> {
                             children: <Widget>[
                               InstaSlider(
                                 img: "assets/home2.jpg",
-                                heading: "Hii, " + userName + "!!",
+                                heading: "Hi, " + userName + "!!",
                                 subheading: "~Where tasteful creations begin.",
                               ),
-                              InstaSlider(
-                                img: "assets/home6.jpg",
-                                heading: "Hii, " + userName + "!!",
-                                subheading: "~Where tasteful creations begin.",
-                              )
+                              // InstaSlider(
+                              //   img: "assets/home6.jpg",
+                              //   heading: "Hi, " + userName + "!!",
+                              //   subheading: "~Where tasteful creations begin.",
+                              // ),
                             ],
                           ),
                         ),
+                        // if (userType == "CANTEEN")
+                        //   Align(
+                        //       alignment: Alignment.bottomRight,
+                        //       child: Padding(
+                        //         padding:
+                        //             const EdgeInsets.only(bottom: 15, right: 5),
+                        //         child: ElevatedButton(
+                        //           onPressed: () {},
+                        //           child: Icon(
+                        //             Icons.file_upload_outlined,
+                        //             color: Colors.white,
+                        //             size: 30,
+                        //           ),
+                        //           style: ButtonStyle(
+                        //               padding:
+                        //                   MaterialStateProperty.all<EdgeInsets>(
+                        //                       EdgeInsets.zero),
+                        //               foregroundColor:
+                        //                   MaterialStateProperty.all<Color>(
+                        //                       Colors.white),
+                        //               backgroundColor:
+                        //                   MaterialStateProperty.all<Color>(
+                        //                       Palette.brown),
+                        //               shape: MaterialStateProperty.all<
+                        //                       RoundedRectangleBorder>(
+                        //                   RoundedRectangleBorder(
+                        //                       borderRadius:
+                        //                           BorderRadius.circular(10),
+                        //                       side: BorderSide(color: Palette.brown)))),
+                        //         ),
+                        //       ))
                       ],
                     ),
                   )),

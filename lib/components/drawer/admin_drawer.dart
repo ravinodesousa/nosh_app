@@ -24,16 +24,23 @@ class _AdminDrawerState extends State<AdminDrawer> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   var selectedItem = -1;
-  List<String> username = [];
-
-  int counter = 0;
+  String? username = '';
+  String? mobileNo = '';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    username = ["User", "1"];
-    counter = 0;
+    initData();
+  }
+
+  void initData() async {
+    final SharedPreferences prefs = await _prefs;
+
+    setState(() {
+      username = prefs.getString("userName") ?? '';
+      mobileNo = prefs.getString("mobileNo") ?? '';
+    });
   }
 
   void logoutHandler() async {
@@ -161,13 +168,13 @@ class _AdminDrawerState extends State<AdminDrawer> {
                                 children: <Widget>[
                                   SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
-                                    child: text1("Test User 1",
+                                    child: text1(username ?? '',
                                         textColor: Colors.white,
                                         fontFamily: 'Medium',
                                         fontSize: 20.0),
                                   ),
                                   SizedBox(height: 8),
-                                  text("9876543210",
+                                  text(mobileNo ?? '',
                                       textColor: Colors.white, fontSize: 14.0),
                                 ],
                               ),

@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:nosh_app/NavigationService.dart';
+import 'package:nosh_app/components/firebase_alert.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/screens/add_menu_item.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
@@ -50,7 +52,7 @@ void main() async {
   print('User granted permission: ${settings.authorizationStatus}');
 
   String? fcmToken = await FirebaseMessaging.instance.getToken() as String;
-  print('Firebase token: ${fcmToken}');
+  print('Firebase token fcmToken: ${fcmToken}');
   prefs.setString("fcmToken", fcmToken);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -63,6 +65,9 @@ void main() async {
     if (message.notification != null) {
       print('Message also contained a notification: ${message.notification}');
     }
+
+    showAlertDialog(
+        NavigationService.navigatorKey.currentContext as BuildContext, message);
   });
 
   runApp(MyApp());
@@ -82,6 +87,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'NOSH',
+      navigatorKey: NavigationService.navigatorKey,
       theme: ThemeData(
         // This is the theme of your application.
         //

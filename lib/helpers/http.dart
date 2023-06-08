@@ -520,6 +520,29 @@ Future<Map<String, dynamic>> deleteFromCart(String id) async {
   }
 }
 
+Future<Map<String, dynamic>> changeCartQuantity(
+    String action, String? id) async {
+  try {
+    Map<String, dynamic> data = {"id": id, "action": action};
+
+    final url = Uri.parse(baseURL + "user/change-cart-quantity");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {"status": 200, "message": "Item quantity successfully changed"};
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 200, "message": "Failed to change Item quantity"};
+  }
+}
+
 Future<Map<String, dynamic>> placeOrder(
     String userId,
     String canteenId,

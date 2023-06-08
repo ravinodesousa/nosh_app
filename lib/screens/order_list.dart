@@ -173,7 +173,7 @@ class _OrderListState extends State<OrderList> {
                                       ),
                                       Row(
                                         children: [
-                                          Text("Amount: "),
+                                          Text("Price: "),
                                           Text('${product.price}/-',
                                               style: TextStyle(
                                                   color: Colors.green,

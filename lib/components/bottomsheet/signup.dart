@@ -340,7 +340,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Icon(Icons.house_sharp),
+                          Icon(Icons.business),
                           SizedBox(
                             width: 20,
                           ),
@@ -383,7 +383,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                           hintText: "Select your Canteen Name",
                           labelText: "CANTEEN NAME",
                           prefixIcon: Icon(
-                            Icons.house,
+                            Icons.storefront,
                             color: Colors.black,
                           ),
                           focusedBorder: UnderlineInputBorder(

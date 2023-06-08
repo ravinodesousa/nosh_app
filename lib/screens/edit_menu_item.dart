@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -205,14 +206,28 @@ class _EditMenuItemState extends State<EditMenuItem> {
                             ? InkWell(
                                 onTap: () async {
                                   await Permission.photos.request();
-                                  var permissionStatus =
-                                      await Permission.photos.status;
-                                  if (permissionStatus.isGranted) {
+                                  var permissionStatus = null;
+
+                                  final androidInfo =
+                                      await DeviceInfoPlugin().androidInfo;
+                                  if (androidInfo.version.sdkInt <= 32) {
+                                    permissionStatus =
+                                        await Permission.storage.status;
+                                  } else {
+                                    permissionStatus =
+                                        await Permission.photos.status;
+                                  }
+
+                                  print(
+                                      'permissionStatus. ${permissionStatus}');
+
+                                  if (permissionStatus ==
+                                      PermissionStatus.granted) {
                                     imageSelectionHandler();
                                   } else {
                                     // todo : show toast
                                     print(
-                                        'Permission not granted. Try Again with permission access');
+                                        'Permission not granted. Try Again with permission access.');
                                   }
                                 },
                                 child: image != null
@@ -276,8 +291,8 @@ class _EditMenuItemState extends State<EditMenuItem> {
                   decoration: InputDecoration(
                     errorText: itemAmountError,
                     labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter amount",
-                    labelText: "Amount",
+                    hintText: "Enter price",
+                    labelText: "Price",
                     prefixIcon: Icon(
                       Icons.money,
                       color: Colors.black,

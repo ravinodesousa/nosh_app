@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lottie/lottie.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/config/constants.dart';
 import 'package:nosh_app/config/palette.dart';
@@ -35,6 +36,7 @@ class _OrderSummaryState extends State<OrderSummary> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool _loading = false;
+  bool _showPlaceOrderLoader = false;
   List<CartItem> _orderitems = [];
 
   String _paymentdropdownvalue = 'Online';
@@ -100,6 +102,7 @@ class _OrderSummaryState extends State<OrderSummary> {
 
   void placeOrderHandler(String? txnId) async {
     setState(() {
+      _showPlaceOrderLoader = true;
       _loading = true;
     });
 
@@ -141,6 +144,7 @@ class _OrderSummaryState extends State<OrderSummary> {
     }
 
     setState(() {
+      _showPlaceOrderLoader = false;
       _loading = false;
     });
   }
@@ -206,15 +210,37 @@ class _OrderSummaryState extends State<OrderSummary> {
       appBar: AppBar(title: Text("Order Summary")),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
-        color: Colors.black54,
-        opacity: 0.7,
-        progressIndicator: Theme(
-          data: ThemeData.dark(),
-          child: CupertinoActivityIndicator(
-            animating: true,
-            radius: 30,
-          ),
-        ),
+        color: Colors.black,
+        opacity: 0.4,
+        progressIndicator: _showPlaceOrderLoader
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    // 'assets/icons/icon_food_ready.zip',
+                    'assets/icons/icon_confirming_order.json',
+                    alignment: Alignment.center,
+                    // width: MediaQuery.of(context).size.width / 2,
+                    height: MediaQuery.of(context).size.height / 2,
+                    fit: BoxFit.fill,
+                  ),
+                  Text(
+                    "Placing order....",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
+                  )
+                ],
+              )
+            : Theme(
+                data: ThemeData.dark(),
+                child: CupertinoActivityIndicator(
+                  animating: true,
+                  radius: 30,
+                ),
+              ),
         child: Padding(
           padding:
               const EdgeInsets.only(top: 30, bottom: 30, left: 20, right: 20),
@@ -413,7 +439,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                     ),
                                     Row(
                                       children: [
-                                        Text("Amount: "),
+                                        Text("Price: "),
                                         Text('${_orderitems[index].price}/-',
                                             style: TextStyle(
                                                 color: Colors.green,
