@@ -27,6 +27,9 @@ class _CanteenListState extends State<CanteenList> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     List<User> temp = await getAllUsers("CANTEEN");
     print("temp ${temp}");
     setState(() {
@@ -48,100 +51,124 @@ class _CanteenListState extends State<CanteenList> {
           radius: 30,
         ),
       ),
-      child: Scaffold(
-        body: Container(
-            child: Stack(
-          children: <Widget>[
-            Image.asset(
-              "assets/dash2.jpg",
-              fit: BoxFit.cover,
-              width: (MediaQuery.of(context).size.width),
-              height: (MediaQuery.of(context).size.height),
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                    color: Color(0xFF56303030)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top: 30, bottom: 30),
-                          child: text("Choose your Canteen",
-                              textColor: Colors.white,
-                              fontSize: 20.0,
-                              fontFamily: 'Semibold'),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height - 130,
-                          child: _canteens.length > 0 && !_loading
-                              ? GridView(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          mainAxisSpacing: 30,
-                                          crossAxisSpacing: 30),
-                                  children: [
-                                    ..._canteens
-                                        .map((User tmpUser) => GestureDetector(
-                                              onTap: () async {
-                                                final SharedPreferences prefs =
-                                                    await _prefs;
-                                                prefs.setString("canteenId",
-                                                    tmpUser.id as String);
-
-                                                Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            Home()));
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.yellow[700],
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      tmpUser.canteenName ?? '',
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w800),
-                                                    )),
-                                              ),
-                                            ))
-                                  ],
-                                )
-                              : !_loading && _canteens.length == 0
-                                  ? Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "No Canteen's found",
-                                        style: TextStyle(
-                                            fontSize: 22, color: Colors.white),
-                                      ))
-                                  : null,
-                        )
-                      ]),
-                ),
+      child: RefreshIndicator(
+        onRefresh: () {
+          initData();
+          return Future(() => null);
+        },
+        child: Scaffold(
+          body: Container(
+              child: Stack(
+            children: <Widget>[
+              Image.asset(
+                "assets/dash2.jpg",
+                fit: BoxFit.cover,
+                width: (MediaQuery.of(context).size.width),
+                height: (MediaQuery.of(context).size.height),
               ),
-            )
-          ],
-        )),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30)),
+                      color: Color(0xFF56303030)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(top: 30, bottom: 30),
+                            child: text("Choose your Canteen",
+                                textColor: Colors.white,
+                                fontSize: 20.0,
+                                fontFamily: 'Semibold'),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height - 130,
+                            child: _canteens.length > 0 && !_loading
+                                ? GridView(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            mainAxisSpacing: 30,
+                                            crossAxisSpacing: 30),
+                                    children: [
+                                      ..._canteens.map((User tmpUser) =>
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final SharedPreferences prefs =
+                                                  await _prefs;
+                                              prefs.setString("canteenId",
+                                                  tmpUser.id as String);
+
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Home()));
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.yellow[700],
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Align(
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    tmpUser.canteenName ?? '',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w800),
+                                                  )),
+                                            ),
+                                          ))
+                                    ],
+                                  )
+                                : !_loading && _canteens.length == 0
+                                    ? Expanded(
+                                        flex: 1,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "No Canteen's found",
+                                                style: TextStyle(
+                                                    fontSize: 22,
+                                                    color: Colors.black),
+                                              ),
+                                              TextButton.icon(
+                                                  onPressed: () {
+                                                    initData();
+                                                  },
+                                                  icon: Icon(Icons.refresh),
+                                                  label: Text("Refresh"))
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                          )
+                        ]),
+                  ),
+                ),
+              )
+            ],
+          )),
+        ),
       ),
     );
   }

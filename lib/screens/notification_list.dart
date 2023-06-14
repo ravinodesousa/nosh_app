@@ -26,6 +26,9 @@ class _NotificationListState extends State<NotificationList> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     final SharedPreferences prefs = await _prefs;
 
     List<Map<String, dynamic>> temp =
@@ -51,49 +54,73 @@ class _NotificationListState extends State<NotificationList> {
             radius: 30,
           ),
         ),
-        child: !_loading && _notifications.length > 0
-            ? ListView.custom(
-                childrenDelegate: SliverChildBuilderDelegate(
-                childCount: _notifications.length,
-                (context, index) {
-                  return Card(
-                    color: Color.fromARGB(255, 241, 241, 241),
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 20),
-                                  child: Image.network(
-                                    "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
-                                    height: 50,
-                                    width: 50,
+        child: RefreshIndicator(
+          onRefresh: () {
+            initData();
+            return Future(() => null);
+          },
+          child: !_loading && _notifications.length > 0
+              ? ListView.custom(
+                  childrenDelegate: SliverChildBuilderDelegate(
+                  childCount: _notifications.length,
+                  (context, index) {
+                    return Card(
+                      color: Color.fromARGB(255, 241, 241, 241),
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 20),
+                                    child: Image.network(
+                                      "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                      height: 50,
+                                      width: 50,
+                                    ),
                                   ),
-                                ),
-                                Column(
-                                  children: [
-                                    Text("Notification title"),
-                                    Text("Notification body..............")
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Text("a day ago")
-                          ]),
+                                  Column(
+                                    children: [
+                                      Text("Notification title"),
+                                      Text("Notification body..............")
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Text("a day ago")
+                            ]),
+                      ),
+                    );
+                  },
+                ))
+              : Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "No notifications found....",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        TextButton.icon(
+                            onPressed: () {
+                              initData();
+                            },
+                            icon: Icon(Icons.refresh),
+                            label: Text("Refresh"))
+                      ],
                     ),
-                  );
-                },
-              ))
-            : Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "No notifications found....",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

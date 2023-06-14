@@ -4,6 +4,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/order_item.dart';
 import 'package:nosh_app/data/payment.dart';
 import 'package:nosh_app/data/user.dart';
+import 'package:nosh_app/helpers/date.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -101,166 +102,186 @@ class _PaymentsState extends State<Payments> {
             radius: 30,
           ),
         ),
-        child: Column(
-          children: [
-            if (_selectedMonth != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10, top: 10),
-                child: Text(
-                  _selectedMonth.toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        child: RefreshIndicator(
+          onRefresh: () {
+            initData();
+            return Future(() => null);
+          },
+          child: Column(
+            children: [
+              if (_selectedMonth != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10, top: 10),
+                  child: Text(
+                    _selectedMonth.toString(),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
+              ElevatedButton(
+                  onPressed: () {
+                    showMonthPicker(context);
+                  },
+                  child: Text("Pick Month..")),
+              SizedBox(
+                height: 10,
               ),
-            ElevatedButton(
-                onPressed: () {
-                  showMonthPicker(context);
-                },
-                child: Text("Pick Month..")),
-            SizedBox(
-              height: 10,
-            ),
-            !_loading && _payments.length > 0
-                ? Expanded(
-                    child: ListView.custom(
-                        childrenDelegate: SliverChildBuilderDelegate(
-                      childCount: _payments.length,
-                      (context, index) {
-                        return Card(
-                          color: Colors.grey.shade300,
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Canteen : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_payments[index].canteenName ?? ''}'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Pay Amount : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_payments[index].totalAmount ?? ''}'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Start Date : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_payments[index].startDate ?? ''}'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "End Date : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_payments[index].endDate ?? ''}'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Status : ",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Chip(
-                                          backgroundColor:
-                                              _payments[index].status ==
-                                                      "UNPAID"
-                                                  ? Colors.blue
-                                                  : Colors.green,
-                                          labelStyle: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 13),
-                                          label: Text(
-                                              '${_payments[index].status ?? ''}'))
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  if (_payments[index].status == "UNPAID")
-                                    SizedBox(
-                                      width: 140,
-                                      height: 30,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          changePaymentStatus(
-                                              _payments[index].id as String);
-                                        },
-                                        child: Row(
+              !_loading && _payments.length > 0
+                  ? Expanded(
+                      child: ListView.custom(
+                          childrenDelegate: SliverChildBuilderDelegate(
+                        childCount: _payments.length,
+                        (context, index) {
+                          return Card(
+                            color: Colors.grey.shade300,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
                                           children: [
-                                            Icon(Icons.money, size: 18),
-                                            SizedBox(
-                                              width: 10,
+                                            Text(
+                                              "Canteen : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                             Text(
-                                              "Pay Amount",
-                                              style: TextStyle(fontSize: 17),
-                                            )
+                                                '${_payments[index].canteenName ?? ''}'),
                                           ],
                                         ),
-                                        style: ElevatedButton.styleFrom(
-                                          textStyle: TextStyle(fontSize: 5),
-                                          padding: EdgeInsets.all(5),
-                                          backgroundColor: Colors.green,
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Pay Amount : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                '${_payments[index].totalAmount ?? ''}'),
+                                          ],
                                         ),
-                                      ),
-                                    )
-                                ]),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Start Date : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                '${formatDateTime(_payments[index].startDate ?? '')}'),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "End Date : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                '${formatDateTime(_payments[index].endDate ?? '')}'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Status : ",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Chip(
+                                            backgroundColor:
+                                                _payments[index].status ==
+                                                        "UNPAID"
+                                                    ? Colors.blue
+                                                    : Colors.green,
+                                            labelStyle: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13),
+                                            label: Text(
+                                                '${_payments[index].status ?? ''}'))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    if (_payments[index].status == "UNPAID")
+                                      SizedBox(
+                                        width: 140,
+                                        height: 30,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            changePaymentStatus(
+                                                _payments[index].id as String);
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.money, size: 18),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                "Pay Amount",
+                                                style: TextStyle(fontSize: 17),
+                                              )
+                                            ],
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            textStyle: TextStyle(fontSize: 5),
+                                            padding: EdgeInsets.all(5),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        ),
+                                      )
+                                  ]),
+                            ),
+                          );
+                        },
+                      )),
+                    )
+                  : !_loading && _payments.isEmpty
+                      ? Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "No data found",
+                                  style: TextStyle(
+                                      fontSize: 22, color: Colors.black),
+                                ),
+                                TextButton.icon(
+                                    onPressed: () {
+                                      initData();
+                                    },
+                                    icon: Icon(Icons.refresh),
+                                    label: Text("Refresh"))
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    )),
-                  )
-                : !_loading && _payments.isEmpty
-                    ? Expanded(
-                        child: Center(
-                            child: Text(
-                          "No Data Found...",
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
-                        )),
-                      )
-                    : SizedBox(),
-          ],
+                        )
+                      : SizedBox(),
+            ],
+          ),
         ),
       ),
     );

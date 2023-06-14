@@ -102,90 +102,110 @@ class _CommissionState extends State<Commission> {
             radius: 30,
           ),
         ),
-        child: Column(
-          children: [
-            if (_selectedMonth != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10, top: 10),
-                child: Text(
-                  _selectedMonth.toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        child: RefreshIndicator(
+          onRefresh: () {
+            initData();
+            return Future(() => null);
+          },
+          child: Column(
+            children: [
+              if (_selectedMonth != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10, top: 10),
+                  child: Text(
+                    _selectedMonth.toString(),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
+              ElevatedButton(
+                  onPressed: () {
+                    showMonthPicker(context);
+                  },
+                  child: Text("Pick Month..")),
+              SizedBox(
+                height: 10,
               ),
-            ElevatedButton(
-                onPressed: () {
-                  showMonthPicker(context);
-                },
-                child: Text("Pick Month..")),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              "Total Earned: ${totalCommission}",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            !_loading && _commissions.length > 0
-                ? Expanded(
-                    child: ListView.custom(
-                        childrenDelegate: SliverChildBuilderDelegate(
-                      childCount: _commissions.length,
-                      (context, index) {
-                        return Card(
-                          color: Colors.grey.shade300,
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
+              Text(
+                "Total Earned: ${totalCommission}",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              !_loading && _commissions.length > 0
+                  ? Expanded(
+                      child: ListView.custom(
+                          childrenDelegate: SliverChildBuilderDelegate(
+                        childCount: _commissions.length,
+                        (context, index) {
+                          return Card(
+                            color: Colors.grey.shade300,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Canteen : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                '${_commissions[index]["name"] ?? ''}'),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Commission : ",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                                '${_commissions[index]["totalRevenueEarned"] ?? ''}'),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ]),
+                            ),
+                          );
+                        },
+                      )),
+                    )
+                  : !_loading && _commissions.isEmpty
+                      ? Expanded(
+                          flex: 1,
+                          child: Center(
                             child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Canteen : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_commissions[index]["name"] ?? ''}'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Commission : ",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                              '${_commissions[index]["totalRevenueEarned"] ?? ''}'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ]),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "No Data found",
+                                  style: TextStyle(
+                                      fontSize: 22, color: Colors.black),
+                                ),
+                                TextButton.icon(
+                                    onPressed: () {
+                                      initData();
+                                    },
+                                    icon: Icon(Icons.refresh),
+                                    label: Text("Refresh"))
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                    )),
-                  )
-                : !_loading && _commissions.isEmpty
-                    ? Expanded(
-                        child: Center(
-                            child: Text(
-                          "No Data Found...",
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
-                        )),
-                      )
-                    : SizedBox(),
-          ],
+                        )
+                      : SizedBox(),
+            ],
+          ),
         ),
       ),
     );

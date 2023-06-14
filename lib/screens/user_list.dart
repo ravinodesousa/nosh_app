@@ -31,6 +31,9 @@ class _UserListState extends State<UserList> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     final SharedPreferences prefs = await _prefs;
 
     List<User> temp =
@@ -78,169 +81,197 @@ class _UserListState extends State<UserList> {
             radius: 30,
           ),
         ),
-        child: !_loading && _users.length > 0
-            ? ListView.custom(
-                childrenDelegate: SliverChildBuilderDelegate(
-                childCount: _users.length,
-                (context, index) {
-                  return Card(
-                    color: Colors.grey.shade300,
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "User : ",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text('${_users[index].username ?? ''}'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Status : ",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Chip(
-                                        backgroundColor:
-                                            _users[index].userStatus ==
-                                                    "PENDING"
-                                                ? Colors.blue
-                                                : _users[index].userStatus ==
-                                                        "ACCEPTED"
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                        labelStyle: TextStyle(
-                                            color: Colors.white, fontSize: 13),
-                                        label: Text(
-                                            '${_users[index].userStatus ?? ''}'))
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            if (_users[index].userType == "CANTEEN") ...[
+        child: RefreshIndicator(
+          onRefresh: () {
+            initData();
+            return Future(() => null);
+          },
+          child: !_loading && _users.length > 0
+              ? ListView.custom(
+                  childrenDelegate: SliverChildBuilderDelegate(
+                  childCount: _users.length,
+                  (context, index) {
+                    return Card(
+                      color: Colors.grey.shade300,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    "Canteen Name : ",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "User : ",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text('${_users[index].username ?? ''}'),
+                                    ],
                                   ),
-                                  Text('${_users[index].canteenName ?? ''}'),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Status : ",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Chip(
+                                          backgroundColor:
+                                              _users[index].userStatus ==
+                                                      "PENDING"
+                                                  ? Colors.blue
+                                                  : _users[index].userStatus ==
+                                                          "ACCEPTED"
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                          labelStyle: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13),
+                                          label: Text(
+                                              '${_users[index].userStatus ?? ''}'))
+                                    ],
+                                  ),
                                 ],
                               ),
                               SizedBox(
                                 height: 10,
                               ),
-                            ],
-                            Row(
-                              children: [
-                                Text(
-                                  "Institution : ",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                              if (_users[index].userType == "CANTEEN") ...[
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Canteen Name : ",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('${_users[index].canteenName ?? ''}'),
+                                  ],
                                 ),
-                                Text('${_users[index].institution ?? ''}'),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Email : ",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(
+                                  height: 10,
                                 ),
-                                Text('${_users[index].email ?? ''}'),
                               ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Mobile No : ",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('${_users[index].mobileNo ?? ''}'),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (_users[index].userStatus == "PENDING" ||
-                                    _users[index].userStatus == "REJECTED")
-                                  SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        userStatusChangeHandler(
-                                            _users[index].id as String,
-                                            "ACCEPTED");
-                                      },
-                                      child: Icon(Icons.check, size: 18),
-                                      style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 5),
-                                        padding: EdgeInsets.all(5),
-                                        backgroundColor: Colors.green,
+                              Row(
+                                children: [
+                                  Text(
+                                    "Institution : ",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('${_users[index].institution ?? ''}'),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Email : ",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('${_users[index].email ?? ''}'),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Mobile No : ",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text('${_users[index].mobileNo ?? ''}'),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (_users[index].userStatus == "PENDING" ||
+                                      _users[index].userStatus == "REJECTED")
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          userStatusChangeHandler(
+                                              _users[index].id as String,
+                                              "ACCEPTED");
+                                        },
+                                        child: Icon(Icons.check, size: 18),
+                                        style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 5),
+                                          padding: EdgeInsets.all(5),
+                                          backgroundColor: Colors.green,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                if (_users[index].userStatus == "PENDING")
-                                  SizedBox(
-                                    width: 30,
-                                  ),
-                                if (_users[index].userStatus == "PENDING" ||
-                                    _users[index].userStatus == "ACCEPTED")
-                                  SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        userStatusChangeHandler(
-                                            _users[index].id as String,
-                                            "REJECTED");
-                                      },
-                                      child: Icon(Icons.close, size: 18),
-                                      style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 5),
-                                        padding: EdgeInsets.all(5),
-                                        backgroundColor: Colors.red,
-                                      ),
+                                  if (_users[index].userStatus == "PENDING")
+                                    SizedBox(
+                                      width: 30,
                                     ),
-                                  )
-                              ],
-                            )
-                          ]),
-                    ),
-                  );
-                },
-              ))
-            : !_loading && _users.isEmpty
-                ? Center(
-                    child: Text(
-                    "No Users Found...",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ))
-                : SizedBox(),
+                                  if (_users[index].userStatus == "PENDING" ||
+                                      _users[index].userStatus == "ACCEPTED")
+                                    SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          userStatusChangeHandler(
+                                              _users[index].id as String,
+                                              "REJECTED");
+                                        },
+                                        child: Icon(Icons.close, size: 18),
+                                        style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 5),
+                                          padding: EdgeInsets.all(5),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                ],
+                              )
+                            ]),
+                      ),
+                    );
+                  },
+                ))
+              : !_loading && _users.isEmpty
+                  ? Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "No Users found...",
+                              style:
+                                  TextStyle(fontSize: 22, color: Colors.black),
+                            ),
+                            TextButton.icon(
+                                onPressed: () {
+                                  initData();
+                                },
+                                icon: Icon(Icons.refresh),
+                                label: Text("Refresh"))
+                          ],
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
+        ),
       ),
     );
   }

@@ -32,6 +32,9 @@ class _CategoryItemState extends State<CategoryItem> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     final SharedPreferences prefs = await _prefs;
 
     List<Product> temp = await getAllMenuItems(
@@ -74,81 +77,89 @@ class _CategoryItemState extends State<CategoryItem> {
             radius: 30,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                  childAspectRatio: 0.65),
-              physics: BouncingScrollPhysics(),
-              itemCount: _items.length,
-              itemBuilder: (BuildContext buildCtx, int index) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ItemDetail(
-                              itemDetails: _items[index],
-                            )));
-                  },
-                  child: Card(
-                    color: Color.fromARGB(255, 240, 240, 240),
-                    child: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 20),
-                              child: SizedBox(
-                                height: 150,
-                                // width: 50,
-                                child: Image.network(
-                                  _items[index].image ??
-                                      "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bWlsa3NoYWtlfGVufDB8fDB8fA%3D%3D&w=1000&q=80",
-                                  alignment: Alignment.center,
-                                  fit: BoxFit.contain,
+        child: RefreshIndicator(
+          onRefresh: () {
+            initData();
+            return Future(() => null);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                    childAspectRatio: 0.65),
+                physics: BouncingScrollPhysics(),
+                itemCount: _items.length,
+                itemBuilder: (BuildContext buildCtx, int index) {
+                  return InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ItemDetail(
+                                itemDetails: _items[index],
+                              )));
+                    },
+                    child: Card(
+                      color: Color.fromARGB(255, 240, 240, 240),
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 20),
+                                child: SizedBox(
+                                  height: 150,
+                                  // width: 50,
+                                  child: Image.network(
+                                    _items[index].image ??
+                                        "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bWlsa3NoYWtlfGVufDB8fDB8fA%3D%3D&w=1000&q=80",
+                                    alignment: Alignment.center,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(_items[index].name ?? ''),
-                                _items[index].type == "Veg"
-                                    ? Image.asset(
-                                        "assets/icons/veg.png",
-                                        fit: BoxFit.cover,
-                                        width: 25,
-                                        height: 25,
-                                      )
-                                    : Image.asset(
-                                        "assets/icons/non_veg.png",
-                                        fit: BoxFit.cover,
-                                        width: 25,
-                                        height: 25,
-                                      )
-                              ],
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "${_items[index].price ?? ''}/- Rs",
-                                  style: TextStyle(color: Colors.green),
-                                ),
-                                // Text("Rating"),
-                              ],
-                            ),
-                          ]),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(_items[index].name ?? ''),
+                                  _items[index].type == "Veg"
+                                      ? Image.asset(
+                                          "assets/icons/veg.png",
+                                          fit: BoxFit.cover,
+                                          width: 25,
+                                          height: 25,
+                                        )
+                                      : Image.asset(
+                                          "assets/icons/non_veg.png",
+                                          fit: BoxFit.cover,
+                                          width: 25,
+                                          height: 25,
+                                        )
+                                ],
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "${_items[index].price ?? ''}/- Rs",
+                                    style: TextStyle(color: Colors.green),
+                                  ),
+                                  // Text("Rating"),
+                                ],
+                              ),
+                            ]),
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+          ),
         ),
       ),
     );
