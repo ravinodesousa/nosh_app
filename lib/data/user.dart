@@ -6,6 +6,7 @@ class User {
     this.username,
     this.canteenName,
     this.institution,
+    this.institutionId,
     this.profilePicture,
     this.email,
     this.isEmailConfirmed,
@@ -22,6 +23,7 @@ class User {
   String? username;
   String? canteenName;
   String? institution;
+  String? institutionId;
   String? profilePicture;
   String? email;
   bool? isEmailConfirmed;
@@ -39,7 +41,9 @@ class User {
         canteenName: json["canteenName"],
         institution:
             json["institution"] != null ? json["institution"]["name"] : '',
-        profilePicture: json["profilePicture"],
+        institutionId:
+            json["institution"] != null ? json["institution"]["_id"] : '',
+        profilePicture: json["profilePicture"] ?? '',
         email: json["email"],
         isEmailConfirmed: json["isEmailConfirmed"],
         mobileNo: json["mobileNo"],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
@@ -7,6 +8,7 @@ import 'package:nosh_app/helpers/validation.dart';
 import 'package:nosh_app/screens/canteen_list.dart';
 import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/verify_otp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SigninBottomSheet extends StatefulWidget {
@@ -63,11 +65,13 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
         passwordValidationResult["is_valid"]) {
       //
       print("fcmToken ${fcmToken}");
-      User? userData =
+      Map<String, dynamic> response =
           await login(fcmToken, loginEmail.text, loginPassword.text);
-      print(userData);
-      if (userData != null) {
+      print(response);
+      if (response["successful"]) {
+        User? userData = response["data"] as User;
         // todo: redirect to home screen
+
         final SharedPreferences prefs = await _prefs;
         prefs.setString("userId", userData.id as String);
         prefs.setString("userType", userData.userType as String);
@@ -76,16 +80,34 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
         prefs.setString("email", userData.email as String);
         prefs.setString("mobileNo", userData.mobileNo as String);
 
-        if (userData.userType == "USER") {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => CanteenList()));
-        } else if (userData.userType == "CANTEEN") {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Home()));
-        } else if (userData.userType == "ADMIN") {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Dashboard()));
+        if (userData.isMobileNoConfirmed ?? false) {
+          prefs.setBool(
+              "isMobileNoConfirmed", userData.isMobileNoConfirmed as bool);
+
+          if (userData.userType == "USER") {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => CanteenList()));
+          } else if (userData.userType == "CANTEEN") {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => Home()));
+          } else if (userData.userType == "ADMIN") {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => Dashboard()));
+          }
+        } else {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>
+                  VerifyOtp(mobileNo: userData.mobileNo, type: "LOGIN")));
         }
+      } else {
+        Fluttertoast.showToast(
+            msg: response["message"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     }
   }

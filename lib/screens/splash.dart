@@ -42,7 +42,8 @@ class _SplashState extends State<Splash> {
         prefs.containsKey("userName") &&
         prefs.containsKey("canteenName") &&
         prefs.containsKey("email") &&
-        prefs.containsKey("mobileNo")) {
+        prefs.containsKey("mobileNo") &&
+        prefs.containsKey("isMobileNoConfirmed")) {
       if (prefs.getString("userType") == "USER") {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => CanteenList()));

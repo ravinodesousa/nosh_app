@@ -161,6 +161,26 @@ class _AddMenuItemState extends State<AddMenuItem> {
     }
   }
 
+  void checkPermissions() async {
+    await Permission.photos.request();
+    var permissionStatus = null;
+
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt <= 32) {
+      permissionStatus = await Permission.storage.status;
+    } else {
+      permissionStatus = await Permission.photos.status;
+    }
+
+    if (permissionStatus == PermissionStatus.granted) {
+      imageSelectionHandler();
+    } else {
+      // todo : show toast
+      print(
+          'Permission not granted. Try Again with permission access. ${permissionStatus}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,28 +210,8 @@ class _AddMenuItemState extends State<AddMenuItem> {
                         width: 150,
                         child: image != null
                             ? InkWell(
-                                onTap: () async {
-                                  await Permission.photos.request();
-                                  var permissionStatus = null;
-
-                                  final androidInfo =
-                                      await DeviceInfoPlugin().androidInfo;
-                                  if (androidInfo.version.sdkInt <= 32) {
-                                    permissionStatus =
-                                        await Permission.storage.status;
-                                  } else {
-                                    permissionStatus =
-                                        await Permission.photos.status;
-                                  }
-
-                                  if (permissionStatus ==
-                                      PermissionStatus.granted) {
-                                    imageSelectionHandler();
-                                  } else {
-                                    // todo : show toast
-                                    print(
-                                        'Permission not granted. Try Again with permission access. ${permissionStatus}');
-                                  }
+                                onTap: () {
+                                  checkPermissions();
                                 },
                                 child: Image.file(
                                   //to show image, you type like this.
@@ -225,7 +225,7 @@ class _AddMenuItemState extends State<AddMenuItem> {
                                 color: Colors.grey,
                                 child: IconButton(
                                   onPressed: () {
-                                    imageSelectionHandler();
+                                    checkPermissions();
                                   },
                                   icon: Icon(Icons.add),
                                   iconSize: 50,

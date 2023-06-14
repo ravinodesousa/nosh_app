@@ -36,7 +36,8 @@ Future<List<Institution>> getAllInstitutions() async {
   }
 }
 
-Future<User?> login(String? fcmToken, String email, String password) async {
+Future<Map<String, dynamic>> login(
+    String? fcmToken, String email, String password) async {
   try {
     final url = Uri.parse(baseURL + "user/login");
     final response = await http.post(
@@ -49,14 +50,23 @@ Future<User?> login(String? fcmToken, String email, String password) async {
     if (response.statusCode == 200) {
       print(jsonDecode(response.body));
       User data = User.fromJson(jsonDecode(response.body));
-      return data;
+      // return data;
+      return {"successful": true, "data": data};
     } else {
       // todo: show alert from backend
-      throw Exception('Request failed');
+      dynamic data = jsonDecode(response.body);
+      print(data);
+      return {
+        "successful": false,
+        "message": data["message"] ?? "Request failed. Please try again."
+      };
     }
   } catch (err) {
     print(err);
-    return null;
+    return {
+      "successful": false,
+      "message": "Request failed. Please try again."
+    };
   }
 }
 
@@ -87,6 +97,61 @@ Future<Map<String, dynamic>> signup(
     if (response.statusCode == 200) {
       // User data = User.fromJson(jsonDecode(response.body));
       return {"successful": true, "message": "User successfully registered"};
+    } else {
+      dynamic data = jsonDecode(response.body);
+      print(data);
+      return {
+        "successful": false,
+        "message": data["message"] ?? "Request failed. Please try again."
+      };
+    }
+  } catch (err) {
+    print(err);
+    return {
+      "successful": false,
+      "message": "Request failed. Please try again."
+    };
+  }
+}
+
+Future<Map<String, dynamic>> updateProfile(
+  String userId,
+  String? profilePic,
+  String? canteenImage,
+  String? name,
+  String? email,
+  String? mobileNo,
+  String? institution,
+  String? canteenName,
+  bool changePassword,
+  String? password,
+) async {
+  try {
+    final url = Uri.parse(baseURL + "user/update-profile");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({
+        "userId": userId,
+        "profilePic": profilePic,
+        "username": name,
+        "email": email,
+        "mobileNo": mobileNo,
+        "institution": institution,
+        "canteenName": canteenName,
+        "changePassword": changePassword,
+        "password": password,
+        "canteenImage": canteenImage
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // User data = User.fromJson(jsonDecode(response.body));
+      return {
+        "successful": true,
+        "message":
+            "Profile successfully updated. You will be redirected to login screen."
+      };
     } else {
       dynamic data = jsonDecode(response.body);
       print(data);

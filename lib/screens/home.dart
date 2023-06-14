@@ -88,7 +88,7 @@ class _HomeState extends State<Home> {
         appBar: PreferredSize(
             preferredSize: Size.fromHeight(0),
             child: AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.black,
             )),
         drawer: userType == "CANTEEN"
             ? CanteenDrawer()
@@ -117,7 +117,22 @@ class _HomeState extends State<Home> {
                   backgroundColor: innerBoxIsScrolled
                       ? Color(0xFFffffff)
                       : Color(0xFFffffff),
-                  actionsIconTheme: IconThemeData(opacity: 0.0),
+                  actionsIconTheme: IconThemeData(
+                    opacity: 0.0,
+                  ),
+                  leading: Builder(
+                    builder: (BuildContext context) {
+                      return IconButton(
+                        icon: const Icon(Icons.menu),
+                        color: Colors.black,
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                        tooltip: MaterialLocalizations.of(context)
+                            .openAppDrawerTooltip,
+                      );
+                    },
+                  ),
                   title: Container(
                     height: 60,
                     child: Container(

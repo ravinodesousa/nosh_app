@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:nosh_app/helpers/http.dart';
+import 'package:nosh_app/helpers/validation.dart';
 
 class PasswordResetBottomSheet extends StatefulWidget {
   const PasswordResetBottomSheet({super.key, required this.onSigninCallback});
@@ -52,13 +53,13 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
   void _handleResetPasswordHandler() async {
     if (!show_otp) {
       // check if mobile number is entered
-      String? validateMobileNo =
-          resetMobileNo.text.trim() == '' ? "Mobile No required" : null;
+      Map<String, dynamic> validateMobileNo =
+          isValidMobileNo(resetMobileNo.text.trim());
       setState(() {
-        mobileError = validateMobileNo;
+        mobileError = validateMobileNo["error"];
       });
 
-      if (mobileError == null) {
+      if (validateMobileNo["is_valid"]) {
         // todo: call api to send OTP
         Map<String, dynamic>? response =
             await sendOTP(resetMobileNo.text.trim(), "RESET");

@@ -175,6 +175,26 @@ class _EditMenuItemState extends State<EditMenuItem> {
     });
   }
 
+  void checkPermissions() async {
+    await Permission.photos.request();
+    var permissionStatus = null;
+
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt <= 32) {
+      permissionStatus = await Permission.storage.status;
+    } else {
+      permissionStatus = await Permission.photos.status;
+    }
+
+    if (permissionStatus == PermissionStatus.granted) {
+      imageSelectionHandler();
+    } else {
+      // todo : show toast
+      print(
+          'Permission not granted. Try Again with permission access. ${permissionStatus}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,31 +224,8 @@ class _EditMenuItemState extends State<EditMenuItem> {
                         width: 150,
                         child: image != null || widget.productData.image != ''
                             ? InkWell(
-                                onTap: () async {
-                                  await Permission.photos.request();
-                                  var permissionStatus = null;
-
-                                  final androidInfo =
-                                      await DeviceInfoPlugin().androidInfo;
-                                  if (androidInfo.version.sdkInt <= 32) {
-                                    permissionStatus =
-                                        await Permission.storage.status;
-                                  } else {
-                                    permissionStatus =
-                                        await Permission.photos.status;
-                                  }
-
-                                  print(
-                                      'permissionStatus. ${permissionStatus}');
-
-                                  if (permissionStatus ==
-                                      PermissionStatus.granted) {
-                                    imageSelectionHandler();
-                                  } else {
-                                    // todo : show toast
-                                    print(
-                                        'Permission not granted. Try Again with permission access.');
-                                  }
+                                onTap: () {
+                                  checkPermissions();
                                 },
                                 child: image != null
                                     ? Image.file(
@@ -250,7 +247,7 @@ class _EditMenuItemState extends State<EditMenuItem> {
                                 color: Colors.grey,
                                 child: IconButton(
                                   onPressed: () {
-                                    imageSelectionHandler();
+                                    checkPermissions();
                                   },
                                   icon: Icon(Icons.add),
                                   iconSize: 50,

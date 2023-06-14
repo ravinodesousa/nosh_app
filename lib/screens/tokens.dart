@@ -5,6 +5,7 @@ import 'package:nosh_app/components/bottomsheet/add_token.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/data/order_item.dart';
 import 'package:nosh_app/data/token_history.dart';
+import 'package:nosh_app/helpers/date.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -160,8 +161,8 @@ class _TokensState extends State<Tokens> {
                             childrenDelegate: SliverChildBuilderDelegate(
                             childCount: _tokenList.length,
                             (context, index) {
-                              List<String>? dateArr =
-                                  _tokenList[index].payment_date?.split(" ");
+                              // List<String>? dateArr =
+                              //     _tokenList[index].payment_date?.split(" ");
 
                               return Card(
                                 color: Colors.grey.shade300,
@@ -233,7 +234,10 @@ class _TokensState extends State<Tokens> {
                                                   fontSize: 16),
                                             ),
                                             Text(
-                                              '${dateArr![0]}, ${dateArr![1]} ${dateArr![2]} ${dateArr![3]}, ${dateArr![4]}',
+                                              // '${dateArr![0]}, ${dateArr![1]} ${dateArr![2]} ${dateArr![3]}, ${dateArr![4]}',
+                                              formatDateTime(_tokenList[index]
+                                                      .payment_date ??
+                                                  ''),
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,

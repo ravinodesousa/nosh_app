@@ -6,6 +6,7 @@ import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:nosh_app/screens/notification_list.dart';
 import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/profile.dart';
 import 'package:nosh_app/screens/qr_scan.dart';
 import 'package:nosh_app/screens/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,8 +44,9 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
   void logoutHandler() async {
     final SharedPreferences prefs = await _prefs;
     prefs.clear().then((value) => {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Auth()))
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => Auth()),
+              (Route<dynamic> route) => false)
         });
   }
 
@@ -216,7 +218,14 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
+                getDrawerItem(
+                    Icons.supervised_user_circle_outlined, "Profile", 7,
+                    ind: "profile", tags: Profile()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
+                getDrawerItem(Icons.logout, "Logout", 8, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

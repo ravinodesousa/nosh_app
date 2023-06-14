@@ -5,6 +5,7 @@ import 'package:nosh_app/data/institution.dart';
 import 'package:nosh_app/data/user.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/validation.dart';
+import 'package:nosh_app/screens/verify_otp.dart';
 
 class SignupBottomSheet extends StatefulWidget {
   const SignupBottomSheet({super.key, required this.onSigninCallback});
@@ -67,13 +68,14 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
     Map<String, dynamic> emailValidationResult = isValidEmail(signupEmail.text);
     Map<String, dynamic> passwordValidationResult =
         isValidPassword(signupPassword.text);
+    Map<String, dynamic> mobileValidationResult =
+        isValidMobileNo(signupMobileNo.text.trim());
 
     setState(() {
       emailError = emailValidationResult["error"] ?? null;
       passwordError = passwordValidationResult["error"] ?? null;
       nameError = signupName.text.trim() == '' ? "Full name is required" : null;
-      mobileNoError =
-          signupName.text.trim() == '' ? "Full name is required" : null;
+      mobileNoError = mobileValidationResult["error"] ?? null;
       canteenNameError = _selectedUserType == "Canteen Owner" &&
               signupCanteenName.text.trim() == ''
           ? "Canteen name is required"
@@ -83,7 +85,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
     if (emailValidationResult["is_valid"] &&
         passwordValidationResult["is_valid"] &&
         nameError == null &&
-        mobileNoError == null &&
+        mobileValidationResult["is_valid"] &&
         canteenNameError == null) {
       print("signup called");
       Map<String, dynamic> data = await signup(
@@ -108,6 +110,9 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
 
       if (data["successful"]) {
         // todo: redirect to verify otp screen  to verify the mobile number
+
+        String mobileNo = signupMobileNo.text;
+
         signupName.clear();
         signupEmail.clear();
         signupPassword.clear();
@@ -116,6 +121,10 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
 
         Navigator.pop(context);
         widget.onSigninCallback(context);
+
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                VerifyOtp(mobileNo: mobileNo, type: "SIGNUP")));
       }
     }
   }

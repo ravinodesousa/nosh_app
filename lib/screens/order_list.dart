@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/order_item.dart';
+import 'package:nosh_app/helpers/date.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -128,7 +129,8 @@ class _OrderListState extends State<OrderList> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text('Placed on: ${_orders[index].placedOn ?? ''}'),
+                            Text(
+                                'Placed on: ${formatDateTime(_orders[index].placedOn ?? '')}'),
                             SizedBox(
                               height: 20,
                             ),
