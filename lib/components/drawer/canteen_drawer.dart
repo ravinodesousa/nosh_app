@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
+import 'package:nosh_app/data/payment.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:nosh_app/screens/notification_list.dart';
 import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/payments.dart';
 import 'package:nosh_app/screens/profile.dart';
 import 'package:nosh_app/screens/qr_scan.dart';
 import 'package:nosh_app/screens/auth.dart';
@@ -24,6 +26,7 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
   var selectedItem = -1;
   String? username = '';
   String? mobileNo = '';
+  String? profilePicture = '';
 
   @override
   void initState() {
@@ -38,6 +41,7 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
     setState(() {
       username = prefs.getString("userName") ?? '';
       mobileNo = prefs.getString("mobileNo") ?? '';
+      profilePicture = prefs.getString("profilePicture") ?? '';
     });
   }
 
@@ -155,8 +159,9 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  "https://www.w3schools.com/howto/img_avatar.png"),
+                              backgroundImage: NetworkImage(profilePicture == ''
+                                  ? "https://www.w3schools.com/howto/img_avatar.png"
+                                  : profilePicture as String),
                               radius: 40),
                           SizedBox(width: 5),
                           Expanded(
@@ -218,14 +223,20 @@ class _CanteenDrawerState extends State<CanteenDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
+                getDrawerItem(Icons.payments, "Payments", 7,
+                    ind: "payments", tags: Payments()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
                 getDrawerItem(
-                    Icons.supervised_user_circle_outlined, "Profile", 7,
+                    Icons.supervised_user_circle_outlined, "Profile", 8,
                     ind: "profile", tags: Profile()),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 8, ind: "log"),
+                getDrawerItem(Icons.logout, "Logout", 9, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

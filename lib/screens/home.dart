@@ -34,7 +34,8 @@ class _HomeState extends State<Home> {
   Map<String, List<Product>> _trendingItems = {
     "fastFoods": [],
     "desserts": [],
-    "drinks": []
+    "drinks": [],
+    "trendingFoods": []
   };
   bool _loading = true;
 
@@ -322,6 +323,70 @@ class _HomeState extends State<Home> {
                     SizedBox(
                       height: 16.0,
                     ),
+                    if ((_trendingItems["trendingFoods"]?.length ?? 0) > 0) ...[
+                      Container(
+                        decoration: boxDecoration(showShadow: true, radius: 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                mHeading("Trending Items"),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 240,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.only(bottom: 8.0),
+                                itemCount:
+                                    _trendingItems["trendingFoods"]?.length ??
+                                        0,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return Item(
+                                      index: index,
+                                      name: _trendingItems[
+                                                  "trendingFoods"]![index]
+                                              .name ??
+                                          '',
+                                      image: _trendingItems["trendingFoods"]![
+                                                  index]
+                                              .image ??
+                                          '',
+                                      price: '${_trendingItems["trendingFoods"]![index].price}' ??
+                                          '',
+                                      rating: 3,
+                                      description: "test",
+                                      category: _trendingItems[
+                                                  "trendingFoods"]![index]
+                                              .category ??
+                                          '',
+                                      type: _trendingItems["trendingFoods"]![
+                                                  index]
+                                              .type ??
+                                          '',
+                                      inv: "45",
+                                      rate1: 4,
+                                      rate2: 4,
+                                      rate3: 4,
+                                      rate4: 4,
+                                      rate5: 4,
+                                      ratingcount: 4,
+                                      reviewcount: 34,
+                                      item: _trendingItems["trendingFoods"]![
+                                          index]);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 16.0,
+                      ),
+                    ],
                     Container(
                       decoration: boxDecoration(showShadow: true, radius: 0),
                       child: Column(

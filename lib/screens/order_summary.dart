@@ -14,6 +14,7 @@ import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/order_list.dart';
+import 'package:nosh_app/screens/order_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -129,8 +130,11 @@ class _OrderSummaryState extends State<OrderSummary> {
       Timer timer = Timer(
           Duration(seconds: 2),
           () => {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => OrderList()))
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => OrderStatus(
+                          id: data["id"],
+                          status: "ORDER-PLACED",
+                        )))
               });
     } else {
       Fluttertoast.showToast(

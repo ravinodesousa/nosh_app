@@ -645,7 +645,12 @@ Future<Map<String, dynamic>> placeOrder(
     );
 
     if (response.statusCode == 200) {
-      return {"status": 200, "message": "Order successfully placed."};
+      dynamic data = jsonDecode(response.body);
+      return {
+        "status": 200,
+        "message": "Order successfully placed.",
+        "id": data["id"]
+      };
     } else {
       throw Exception('Request failed');
     }
@@ -658,9 +663,14 @@ Future<Map<String, dynamic>> placeOrder(
   }
 }
 
-Future<List<OrderItem>> getOrders(String userId, String userType) async {
+Future<List<OrderItem>> getOrders(
+    String userId, String userType, String orderStatus) async {
   try {
-    Map<String, dynamic> data = {"userId": userId, "userType": userType};
+    Map<String, dynamic> data = {
+      "userId": userId,
+      "userType": userType,
+      "orderStatus": orderStatus
+    };
 
     final url = Uri.parse(baseURL + "order/my-orders");
     final response = await http.post(
@@ -683,6 +693,35 @@ Future<List<OrderItem>> getOrders(String userId, String userType) async {
   } catch (err) {
     print("err : ${err}");
     return [];
+  }
+}
+
+Future<OrderItem?> getOrderDetail(String orderId) async {
+  try {
+    Map<String, dynamic> data = {
+      "orderId": orderId,
+    };
+
+    final url = Uri.parse(baseURL + "order/order-details");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+
+      OrderItem data = OrderItem.fromJson(jsonDecode(response.body));
+
+      print(data);
+      return data;
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return null;
   }
 }
 
@@ -806,7 +845,7 @@ Future<User?> getUserDetails(String userId) async {
   }
 }
 
-Future<List<Map<String, dynamic>>> getNotifications(
+Future<List<dynamic>> getNotifications(
   String userId,
 ) async {
   try {
@@ -823,7 +862,7 @@ Future<List<Map<String, dynamic>>> getNotifications(
 
     if (response.statusCode == 200) {
       // print(response.body);
-      List<Map<String, dynamic>> list = jsonDecode(response.body);
+      List<dynamic> list = jsonDecode(response.body);
       print("list : ${list}");
       return list;
     } else {
@@ -895,13 +934,10 @@ Future<Map<String, dynamic>> getCommission(
   }
 }
 
-Future<List<Payment>> getPayments(
-  String? date,
-) async {
+Future<Map<String, dynamic>?> getPayments(
+    String? date, String? userType) async {
   try {
-    Map<String, dynamic> data = {
-      "date": date,
-    };
+    Map<String, dynamic> data = {"date": date, "userType": userType};
 
     final url = Uri.parse(baseURL + "order/payments");
     final response = await http.post(
@@ -913,17 +949,17 @@ Future<List<Payment>> getPayments(
     if (response.statusCode == 200) {
       List<Payment> list = [];
       // print(response.body);
-      List data = jsonDecode(response.body);
+      Map<String, dynamic> data = jsonDecode(response.body);
       print("date1 : ${data}");
-      data.forEach((item) => {list.add(Payment.fromJson(item))});
-      print("list1 : ${list}");
-      return list;
+      data["payments"].forEach((item) => {list.add(Payment.fromJson(item))});
+      // print("list1 : ${list}");
+      return {"payments": list, "admin": data["admin"]};
     } else {
       throw Exception('Request failed');
     }
   } catch (err) {
     print("err : ${err}");
-    return [];
+    return null;
   }
 }
 
@@ -932,6 +968,35 @@ Future<Map<String, dynamic>> updatePaymentStatus(String id) async {
     Map<String, dynamic> data = {"id": id};
 
     final url = Uri.parse(baseURL + "order/update-payment-status");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return {
+        "status": 200,
+      };
+    } else {
+      throw Exception('Request failed');
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {"status": 500};
+  }
+}
+
+Future<Map<String, dynamic>> rateOrder(
+    String userId, String orderId, List<Map<String, dynamic>> ratings) async {
+  try {
+    Map<String, dynamic> data = {
+      "userId": userId,
+      "orderId": orderId,
+      "ratings": ratings,
+    };
+
+    final url = Uri.parse(baseURL + "order/rate-order");
     final response = await http.post(
       url,
       headers: headers,

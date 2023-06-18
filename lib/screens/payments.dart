@@ -11,6 +11,7 @@ import 'package:nosh_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -26,6 +27,8 @@ class _PaymentsState extends State<Payments> {
   List<Payment> _payments = [];
   num totalCommission = 0;
   DateTime? _selectedMonth = null;
+  String? userType;
+  Map<String, dynamic>? adminData;
 
   @override
   void initState() {
@@ -40,11 +43,15 @@ class _PaymentsState extends State<Payments> {
     });
     final SharedPreferences prefs = await _prefs;
 
-    List<Payment> temp = await getPayments(_selectedMonth.toString());
+    Map<String, dynamic>? temp = await getPayments(
+        _selectedMonth.toString(), prefs.getString("userType") as String);
 
+    print(temp);
     setState(() {
       _loading = false;
-      _payments = temp;
+      _payments = temp != null ? temp["payments"] : [];
+      userType = prefs.getString("userType") as String;
+      adminData = temp != null ? temp["admin"] : null;
     });
   }
 
@@ -82,6 +89,19 @@ class _PaymentsState extends State<Payments> {
         _selectedMonth = selected;
       });
       initData();
+    }
+  }
+
+  void callNumHandler(String number) async {
+    final Uri phoneUrl = Uri(
+      scheme: 'tel',
+      path: number,
+    );
+
+    if (await canLaunchUrl(phoneUrl)) {
+      await launchUrl(phoneUrl);
+    } else {
+      throw "Can't call that number.";
     }
   }
 
@@ -127,134 +147,450 @@ class _PaymentsState extends State<Payments> {
               ),
               !_loading && _payments.length > 0
                   ? Expanded(
-                      child: ListView.custom(
-                          childrenDelegate: SliverChildBuilderDelegate(
-                        childCount: _payments.length,
-                        (context, index) {
-                          return Card(
-                            color: Colors.grey.shade300,
-                            child: Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Canteen : ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                                '${_payments[index].canteenName ?? ''}'),
-                                          ],
+                      flex: 1,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Column(children: [
+                            if (_payments
+                                        .where((element) =>
+                                            element.type == "CANTEEN")
+                                        .length >
+                                    0 &&
+                                userType == "ADMIN") ...[
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Text(
+                                  "Payment to Canteens",
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              ..._payments
+                                  .where((element) => element.type == "CANTEEN")
+                                  .map((payment) => Card(
+                                        color: Colors.grey.shade300,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Canteen : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${payment.canteenName ?? ''}'),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Pay Amount : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${payment.totalAmount ?? ''}'),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Start Date : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${formatDateTime(payment.startDate ?? '')}'),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "End Date : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Text(
+                                                        '${formatDateTime(payment.endDate ?? '')}'),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Status : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Chip(
+                                                        backgroundColor:
+                                                            payment.status ==
+                                                                    "UNPAID"
+                                                                ? Colors.blue
+                                                                : Colors.green,
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 13),
+                                                        label: Text(
+                                                            '${payment.status ?? ''}'))
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    if (payment.status ==
+                                                        "UNPAID")
+                                                      SizedBox(
+                                                        width: 140,
+                                                        height: 30,
+                                                        child: ElevatedButton(
+                                                          onPressed: () {
+                                                            changePaymentStatus(
+                                                                payment.id
+                                                                    as String);
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(Icons.money,
+                                                                  size: 18),
+                                                              SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Text(
+                                                                "Pay Amount",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            textStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        5),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    5),
+                                                            backgroundColor:
+                                                                Colors.green,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    SizedBox(
+                                                      width: 140,
+                                                      height: 30,
+                                                      child: ElevatedButton(
+                                                        onPressed: () {
+                                                          callNumHandler(userType ==
+                                                                  "ADMIN"
+                                                              ? payment
+                                                                      .canteenMobileNo
+                                                                  as String
+                                                              : adminData![
+                                                                      "mobileNo"]
+                                                                  as String);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.phone,
+                                                                size: 18),
+                                                            SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Text(
+                                                              userType ==
+                                                                      "ADMIN"
+                                                                  ? "Call Canteen"
+                                                                  : "Call Admin",
+                                                              style: TextStyle(
+                                                                  fontSize: 17),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          textStyle: TextStyle(
+                                                              fontSize: 5),
+                                                          padding:
+                                                              EdgeInsets.all(5),
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ]),
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Pay Amount : ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                                '${_payments[index].totalAmount ?? ''}'),
-                                          ],
+                                      )),
+                            ],
+                            if (_payments
+                                    .where((element) => element.type == "ADMIN")
+                                    .length >
+                                0) ...[
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Text(
+                                  userType == "ADMIN"
+                                      ? "Payment from Canteens"
+                                      : "Payment to Admin",
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              ..._payments
+                                  .where((element) => element.type == "ADMIN")
+                                  .map((payment) => Card(
+                                        color: Colors.grey.shade300,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Canteen : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${payment.canteenName ?? ''}'),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Pay Amount : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${payment.totalAmount ?? ''}'),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Start Date : ",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(
+                                                            '${formatDateTime(payment.startDate ?? '')}'),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "End Date : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Text(
+                                                        '${formatDateTime(payment.endDate ?? '')}'),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Status : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Chip(
+                                                        backgroundColor:
+                                                            payment.status ==
+                                                                    "UNPAID"
+                                                                ? Colors.blue
+                                                                : Colors.green,
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 13),
+                                                        label: Text(
+                                                            '${payment.status ?? ''}'))
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    if (payment.status ==
+                                                            "UNPAID" &&
+                                                        userType == "ADMIN")
+                                                      SizedBox(
+                                                        width: 140,
+                                                        height: 30,
+                                                        child: ElevatedButton(
+                                                          onPressed: () {
+                                                            changePaymentStatus(
+                                                                payment.id
+                                                                    as String);
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(Icons.money,
+                                                                  size: 18),
+                                                              SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Text(
+                                                                "Amount Paid",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        17),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            textStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        5),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    5),
+                                                            backgroundColor:
+                                                                Colors.green,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    SizedBox(
+                                                      width: 140,
+                                                      height: 30,
+                                                      child: ElevatedButton(
+                                                        onPressed: () {
+                                                          callNumHandler(userType ==
+                                                                  "ADMIN"
+                                                              ? payment
+                                                                      .canteenMobileNo
+                                                                  as String
+                                                              : adminData![
+                                                                      "mobileNo"]
+                                                                  as String);
+                                                        },
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.phone,
+                                                                size: 18),
+                                                            SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Text(
+                                                              userType ==
+                                                                      "ADMIN"
+                                                                  ? "Call Canteen"
+                                                                  : "Call Admin",
+                                                              style: TextStyle(
+                                                                  fontSize: 17),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          textStyle: TextStyle(
+                                                              fontSize: 5),
+                                                          padding:
+                                                              EdgeInsets.all(5),
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ]),
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Start Date : ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                                '${formatDateTime(_payments[index].startDate ?? '')}'),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "End Date : ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                                '${formatDateTime(_payments[index].endDate ?? '')}'),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Status : ",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Chip(
-                                            backgroundColor:
-                                                _payments[index].status ==
-                                                        "UNPAID"
-                                                    ? Colors.blue
-                                                    : Colors.green,
-                                            labelStyle: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 13),
-                                            label: Text(
-                                                '${_payments[index].status ?? ''}'))
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    if (_payments[index].status == "UNPAID")
-                                      SizedBox(
-                                        width: 140,
-                                        height: 30,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            changePaymentStatus(
-                                                _payments[index].id as String);
-                                          },
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.money, size: 18),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                "Pay Amount",
-                                                style: TextStyle(fontSize: 17),
-                                              )
-                                            ],
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            textStyle: TextStyle(fontSize: 5),
-                                            padding: EdgeInsets.all(5),
-                                            backgroundColor: Colors.green,
-                                          ),
-                                        ),
-                                      )
-                                  ]),
-                            ),
-                          );
-                        },
-                      )),
+                                      ))
+                            ]
+                          ]),
+                        ),
+                      ),
                     )
                   : !_loading && _payments.isEmpty
                       ? Expanded(

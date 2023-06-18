@@ -154,28 +154,32 @@ class _ItemDetailState extends State<ItemDetail> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Container(
-                                decoration: new BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 2, bottom: 2),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "1.0",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.white,
-                                        size: 15,
-                                      )
-                                    ],
-                                  ),
-                                )),
+                            if ((widget.itemDetails.rating ?? 0) > 0)
+                              Container(
+                                  decoration: new BoxDecoration(
+                                      color:
+                                          (widget.itemDetails.rating ?? 0) > 2
+                                              ? Colors.green
+                                              : Colors.red,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, top: 2, bottom: 2),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "${widget.itemDetails.rating ?? 0}",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Icon(
+                                          Icons.star,
+                                          color: Colors.white,
+                                          size: 15,
+                                        )
+                                      ],
+                                    ),
+                                  )),
                             SizedBox(
                               height: 10,
                             ),

@@ -79,6 +79,7 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
         prefs.setString("canteenName", userData.canteenName as String);
         prefs.setString("email", userData.email as String);
         prefs.setString("mobileNo", userData.mobileNo as String);
+        prefs.setString("profilePicture", userData.profilePicture as String);
 
         if (userData.isMobileNoConfirmed ?? false) {
           prefs.setBool(

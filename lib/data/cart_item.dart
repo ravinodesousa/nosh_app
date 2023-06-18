@@ -8,7 +8,8 @@ class CartItem {
       this.image,
       this.price,
       this.type,
-      this.quantity});
+      this.quantity,
+      this.rating});
 
   String? id;
   String? productId;
@@ -16,15 +17,16 @@ class CartItem {
   String? image;
   int? price;
   int? quantity;
+  double? rating;
   String? type;
 
   factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
-        id: json["_id"],
-        productId: json["product"]["_id"],
-        name: json["product"]["name"],
-        image: json["product"]["image"] == '' ? null : json["product"]["image"],
-        price: json["product"]["price"],
-        type: json["product"]["type"],
-        quantity: json["quantity"],
-      );
+      id: json["_id"],
+      productId: json["product"]["_id"],
+      name: json["product"]["name"],
+      image: json["product"]["image"] == '' ? null : json["product"]["image"],
+      price: json["product"]["price"],
+      type: json["product"]["type"],
+      quantity: json["quantity"],
+      rating: 0);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/helpers/date.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -17,7 +18,7 @@ class _NotificationListState extends State<NotificationList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool _loading = true;
-  List<Map<String, dynamic>> _notifications = [];
+  List<dynamic> _notifications = [];
 
   @override
   void initState() {
@@ -31,12 +32,50 @@ class _NotificationListState extends State<NotificationList> {
     });
     final SharedPreferences prefs = await _prefs;
 
-    List<Map<String, dynamic>> temp =
+    List<dynamic> temp =
         await getNotifications(prefs.getString("userId") as String);
     setState(() {
       _notifications = temp;
       _loading = false;
     });
+  }
+
+  String getImage(String status) {
+    String path = "assets/icons";
+    switch (status) {
+      case "ORDER-PLACED":
+        {
+          return "${path}/icon_order_placed.png";
+        }
+      case "ORDER-ACCEPTED":
+        {
+          return "${path}/icon_order_accepted.png";
+        }
+      case "ORDER-READY":
+        {
+          return "${path}/icon_order_ready.png";
+        }
+      case "ORDER-DELIVERED":
+        {
+          return "${path}/icon_order_delivered.png";
+        }
+      case "MONEY-CREDITED":
+        {
+          return "${path}/icon_money_credited.png";
+        }
+      case "MONEY-REQUESTED":
+        {
+          return "${path}/icon_money_requested.png";
+        }
+      case "NEW-CANTEEN-REGISTRATION":
+        {
+          return "${path}/icon_user_registered.png";
+        }
+      default:
+        {
+          return "${path}/icon_order_accepted.png";
+        }
+    }
   }
 
   @override
@@ -75,21 +114,48 @@ class _NotificationListState extends State<NotificationList> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.only(right: 20),
-                                    child: Image.network(
-                                      "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                    child: Image.asset(
+                                      getImage(_notifications[index]["type"]),
                                       height: 50,
                                       width: 50,
                                     ),
                                   ),
-                                  Column(
-                                    children: [
-                                      Text("Notification title"),
-                                      Text("Notification body..............")
-                                    ],
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width - 95,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(_notifications[index]["title"]
+                                            as String),
+                                        SizedBox(
+                                          height: 7,
+                                        ),
+                                        Text(
+                                          _notifications[index]["message"]
+                                              as String,
+                                          textAlign: TextAlign.left,
+                                        ),
+                                        SizedBox(
+                                          height: 15,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            formatDateTime(_notifications[index]
+                                                ["date"] as String),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.grey.shade700),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              Text("a day ago")
                             ]),
                       ),
                     );

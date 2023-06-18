@@ -114,224 +114,255 @@ class _CartState extends State<Cart> {
             radius: 30,
           ),
         ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height - 250,
-                child: RefreshIndicator(
-                  onRefresh: () {
-                    initData();
-                    return Future(() => null);
-                  },
-                  child: ListView.custom(
-                      childrenDelegate: SliverChildBuilderDelegate(
-                    childCount: _cartitems.length,
-                    (context, index) {
-                      return Card(
-                        color: Colors.grey.shade300,
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 20),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: Image.network(
-                                          _cartitems[index].image ??
-                                              "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
-                                          height: 50,
-                                          width: 50,
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "x${_cartitems[index].quantity} - "),
-                                            Text(
-                                              "${_cartitems[index].name}",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text("Price: "),
-                                            Text('${_cartitems[index].price}/-',
-                                                style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            SizedBox(
-                                              width: 20,
+        child: _cartitems.length > 0
+            ? SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 250,
+                      child: RefreshIndicator(
+                        onRefresh: () {
+                          initData();
+                          return Future(() => null);
+                        },
+                        child: ListView.custom(
+                            childrenDelegate: SliverChildBuilderDelegate(
+                          childCount: _cartitems.length,
+                          (context, index) {
+                            return Card(
+                              color: Colors.grey.shade300,
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 20),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              child: Image.network(
+                                                _cartitems[index].image ??
+                                                    "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                                height: 50,
+                                                width: 50,
+                                                fit: BoxFit.fill,
+                                              ),
                                             ),
-                                            _cartitems[index].type == "Veg"
-                                                ? Image.asset(
-                                                    "assets/icons/veg.png",
-                                                    fit: BoxFit.cover,
-                                                    width: 25,
-                                                    height: 25,
-                                                  )
-                                                : Image.asset(
-                                                    "assets/icons/non_veg.png",
-                                                    fit: BoxFit.cover,
-                                                    width: 25,
-                                                    height: 25,
-                                                  )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        quantityBtnHandler(
-                                            "INCREMENT", _cartitems[index].id);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(30),
-                                                bottomLeft:
-                                                    Radius.circular(30))),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6),
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Colors.white,
-                                            size: 12,
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Text(
-                                        "${_cartitems[index].quantity}",
-                                        style: TextStyle(fontSize: 19),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        quantityBtnHandler(
-                                            "DECREMENT", _cartitems[index].id);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(30),
-                                                bottomRight:
-                                                    Radius.circular(30))),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6),
-                                          child: Icon(
-                                            Icons.remove,
-                                            color: Colors.white,
-                                            size: 12,
+                                          Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                      "x${_cartitems[index].quantity} - "),
+                                                  Text(
+                                                    "${_cartitems[index].name}",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text("Price: "),
+                                                  Text(
+                                                      '${_cartitems[index].price}/-',
+                                                      style: TextStyle(
+                                                          color: Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  _cartitems[index].type ==
+                                                          "Veg"
+                                                      ? Image.asset(
+                                                          "assets/icons/veg.png",
+                                                          fit: BoxFit.cover,
+                                                          width: 25,
+                                                          height: 25,
+                                                        )
+                                                      : Image.asset(
+                                                          "assets/icons/non_veg.png",
+                                                          fit: BoxFit.cover,
+                                                          width: 25,
+                                                          height: 25,
+                                                        )
+                                                ],
+                                              )
+                                            ],
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ),
-                                    Column(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () {
-                                              deleteHandler(
-                                                  _cartitems[index].id ?? '');
+                                      Row(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              quantityBtnHandler("INCREMENT",
+                                                  _cartitems[index].id);
                                             },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                            ))
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ]),
-                        ),
-                      );
-                    },
-                  )),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Column(
-                children: [
-                  Text(
-                    "Time Slot",
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: DropdownButton(
-                      isExpanded: true,
-                      // Initial Value
-                      value: _timeslotdropdownvalue,
-
-                      // Down Arrow Icon
-                      icon: const Icon(Icons.keyboard_arrow_down),
-
-                      // Array list of items
-                      items: _timeslots.map((String items) {
-                        return DropdownMenuItem(
-                          value: items,
-                          child: Text(items),
-                        );
-                      }).toList(),
-                      // After selecting the desired option,it will
-                      // change button value to selected value
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _timeslotdropdownvalue = newValue!;
-                        });
-                      },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.black,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  30),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  30))),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(6),
+                                                child: Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                  size: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(
+                                              "${_cartitems[index].quantity}",
+                                              style: TextStyle(fontSize: 19),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              quantityBtnHandler("DECREMENT",
+                                                  _cartitems[index].id);
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.black,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  30),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  30))),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(6),
+                                                child: Icon(
+                                                  Icons.remove,
+                                                  color: Colors.white,
+                                                  size: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Column(
+                                            children: [
+                                              IconButton(
+                                                  onPressed: () {
+                                                    deleteHandler(
+                                                        _cartitems[index].id ??
+                                                            '');
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ))
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ]),
+                              ),
+                            );
+                          },
+                        )),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  margin: const EdgeInsets.all(5),
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => OrderSummary(
-                              cartItems: _cartitems,
-                              timeSlot: _timeslotdropdownvalue,
-                              userDetails: userDetails)));
-                    },
-                    child: const Text('Order'),
-                  ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "Time Slot",
+                          style: TextStyle(
+                              fontSize: 19, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 2,
+                          child: DropdownButton(
+                            isExpanded: true,
+                            // Initial Value
+                            value: _timeslotdropdownvalue,
+
+                            // Down Arrow Icon
+                            icon: const Icon(Icons.keyboard_arrow_down),
+
+                            // Array list of items
+                            items: _timeslots.map((String items) {
+                              return DropdownMenuItem(
+                                value: items,
+                                child: Text(items),
+                              );
+                            }).toList(),
+                            // After selecting the desired option,it will
+                            // change button value to selected value
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _timeslotdropdownvalue = newValue!;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        margin: const EdgeInsets.all(5),
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => OrderSummary(
+                                    cartItems: _cartitems,
+                                    timeSlot: _timeslotdropdownvalue,
+                                    userDetails: userDetails)));
+                          },
+                          child: const Text('Order'),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               )
-            ],
-          ),
-        ),
+            : Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Container(
+                    child: Text(
+                      "No items found...",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }

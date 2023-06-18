@@ -8,6 +8,7 @@ class Product {
       this.price,
       this.category,
       this.type,
+      this.rating,
       // this.description,
       this.is_active});
 
@@ -15,6 +16,7 @@ class Product {
   String? name;
   String? image;
   int? price;
+  num? rating;
   // String? description;
   String? category;
   String? type;
@@ -29,6 +31,7 @@ class Product {
         category: json["category"],
         type: json["type"],
         is_active: json["is_active"],
+        rating: json["rating"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {

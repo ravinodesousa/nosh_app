@@ -21,6 +21,7 @@ class _UserDrawerState extends State<UserDrawer> {
   var selectedItem = -1;
   String? username = '';
   String? mobileNo = '';
+  String? profilePicture = '';
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _UserDrawerState extends State<UserDrawer> {
     setState(() {
       username = prefs.getString("userName") ?? '';
       mobileNo = prefs.getString("mobileNo") ?? '';
+      profilePicture = prefs.getString("profilePicture") ?? '';
     });
   }
 
@@ -152,8 +154,9 @@ class _UserDrawerState extends State<UserDrawer> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  "https://www.w3schools.com/howto/img_avatar.png"),
+                              backgroundImage: NetworkImage(profilePicture == ''
+                                  ? "https://www.w3schools.com/howto/img_avatar.png"
+                                  : profilePicture as String),
                               radius: 40),
                           SizedBox(width: 5),
                           Expanded(
