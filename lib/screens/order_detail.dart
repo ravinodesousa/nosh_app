@@ -10,6 +10,7 @@ import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/cart.dart';
 import 'package:nosh_app/screens/home.dart';
+import 'package:nosh_app/screens/order_list.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -91,6 +92,16 @@ class _OrderDetailState extends State<OrderDetail> {
       extendBody: true,
       appBar: AppBar(
         title: Text(orderDetail?.orderId ?? '' as String),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => OrderList()),
+                  (Route<dynamic> route) => false);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
       ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
