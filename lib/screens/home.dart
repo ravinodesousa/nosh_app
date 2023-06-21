@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/components/drawer/admin_drawer.dart';
 import 'package:nosh_app/components/drawer/canteen_drawer.dart';
@@ -8,11 +13,13 @@ import 'package:nosh_app/components/item.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
+import 'package:nosh_app/helpers/storage.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:nosh_app/screens/cart.dart';
 import 'package:nosh_app/screens/category_item.dart';
 import 'package:nosh_app/screens/search.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -31,13 +38,16 @@ class _HomeState extends State<Home> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  final ImagePicker picker = ImagePicker();
+  XFile? image;
+
   Map<String, List<Product>> _trendingItems = {
     "fastFoods": [],
     "desserts": [],
     "drinks": [],
     "trendingFoods": []
   };
-  bool _loading = true;
+  bool _loading = false;
 
   String userId = "";
   String userType = "USER";
@@ -45,6 +55,7 @@ class _HomeState extends State<Home> {
   String email = '';
   String canteenName = '';
   String mobileNo = '';
+  String? carouselImage = null;
 
   @override
   void initState() {
@@ -59,9 +70,17 @@ class _HomeState extends State<Home> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     final SharedPreferences prefs = await _prefs;
 
     Map<String, List<Product>> trendingItems = await getTrendingItems(
+        prefs.getString("userType") == "USER"
+            ? prefs.getString("canteenId") as String
+            : prefs.getString("userId") as String);
+
+    String? tempCarouselImage = await getCarouselImage(
         prefs.getString("userType") == "USER"
             ? prefs.getString("canteenId") as String
             : prefs.getString("userId") as String);
@@ -74,8 +93,134 @@ class _HomeState extends State<Home> {
       canteenName = prefs.getString("canteenName") as String;
       mobileNo = prefs.getString("mobileNo") as String;
       _trendingItems = trendingItems;
+      carouselImage = tempCarouselImage;
       _loading = false;
     });
+  }
+
+  Future getImage(ImageSource media) async {
+    var img = await picker.pickImage(source: media);
+    print(img);
+    if (img != null) {
+      List<String> filename = img!.name.split(".");
+      print("name ${filename.toString()}");
+      if (['jpeg', 'jpg', 'png'].contains(filename.last)) {
+        String uploadedFileurl = await uploadFile(File(img!.path));
+        print("uploadedFileurl: ${uploadedFileurl}");
+        if (uploadedFileurl != '') {
+          Map<String, dynamic> result =
+              await uploadCanteenCoverImage(userId as String, uploadedFileurl);
+
+          Fluttertoast.showToast(
+              msg: result["message"],
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor:
+                  result["successful"] == true ? Colors.green : Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+
+          print("result : ${result}");
+          if (result["successful"] == true) {
+            initData();
+          }
+        } else {
+          Fluttertoast.showToast(
+              msg: "Failed to upload image. Try again...",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        }
+      } else {
+        Fluttertoast.showToast(
+            msg: "Only following image formats are allowed: jpeg,jpg,png",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } else {
+      // todo: show toast about camera error
+      Fluttertoast.showToast(
+          msg: "Failed to upload image. Try again...",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  void checkPermissions() async {
+    await Permission.photos.request();
+    var permissionStatus = null;
+
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    if (androidInfo.version.sdkInt <= 32) {
+      permissionStatus = await Permission.storage.status;
+    } else {
+      permissionStatus = await Permission.photos.status;
+    }
+
+    if (permissionStatus == PermissionStatus.granted) {
+      imageSelectionHandler();
+    } else {
+      // todo : show toast
+      print(
+          'Permission not granted. Try Again with permission access. ${permissionStatus}');
+    }
+  }
+
+  void imageSelectionHandler() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            title: Text('Please choose media to select'),
+            content: Container(
+              height: MediaQuery.of(context).size.height / 6,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    //if user click this button, user can upload image from gallery
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.gallery);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.image),
+                        Text('From Gallery'),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    //if user click this button. user can upload image from camera
+                    onPressed: () {
+                      Navigator.pop(context);
+                      getImage(ImageSource.camera);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.camera),
+                        Text('From Camera'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -215,49 +360,50 @@ class _HomeState extends State<Home> {
                           child: PageView(
                             children: <Widget>[
                               InstaSlider(
-                                img: "assets/home2.jpg",
+                                img: carouselImage != null
+                                    ? carouselImage as String
+                                    : "assets/home2.jpg",
+                                imageType:
+                                    carouselImage != null ? "NETWORK" : "LOCAL",
                                 heading: "Hi, " + userName + "!!",
                                 subheading: "~Where tasteful creations begin.",
                               ),
-                              // InstaSlider(
-                              //   img: "assets/home6.jpg",
-                              //   heading: "Hi, " + userName + "!!",
-                              //   subheading: "~Where tasteful creations begin.",
-                              // ),
                             ],
                           ),
                         ),
-                        // if (userType == "CANTEEN")
-                        //   Align(
-                        //       alignment: Alignment.bottomRight,
-                        //       child: Padding(
-                        //         padding:
-                        //             const EdgeInsets.only(bottom: 15, right: 5),
-                        //         child: ElevatedButton(
-                        //           onPressed: () {},
-                        //           child: Icon(
-                        //             Icons.file_upload_outlined,
-                        //             color: Colors.white,
-                        //             size: 30,
-                        //           ),
-                        //           style: ButtonStyle(
-                        //               padding:
-                        //                   MaterialStateProperty.all<EdgeInsets>(
-                        //                       EdgeInsets.zero),
-                        //               foregroundColor:
-                        //                   MaterialStateProperty.all<Color>(
-                        //                       Colors.white),
-                        //               backgroundColor:
-                        //                   MaterialStateProperty.all<Color>(
-                        //                       Palette.brown),
-                        //               shape: MaterialStateProperty.all<
-                        //                       RoundedRectangleBorder>(
-                        //                   RoundedRectangleBorder(
-                        //                       borderRadius:
-                        //                           BorderRadius.circular(10),
-                        //                       side: BorderSide(color: Palette.brown)))),
-                        //         ),
-                        //       ))
+                        if (userType == "CANTEEN")
+                          Align(
+                              alignment: Alignment.bottomRight,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: 15, right: 5),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    checkPermissions();
+                                  },
+                                  child: Icon(
+                                    Icons.file_upload_outlined,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                  style: ButtonStyle(
+                                      padding:
+                                          MaterialStateProperty.all<EdgeInsets>(
+                                              EdgeInsets.zero),
+                                      foregroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.white),
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Palette.brown),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              side: BorderSide(color: Palette.brown)))),
+                                ),
+                              ))
                       ],
                     ),
                   )),
@@ -612,11 +758,12 @@ class _HomeState extends State<Home> {
 }
 
 class InstaSlider extends StatelessWidget {
-  final String img, heading, subheading;
+  final String img, heading, subheading, imageType;
 
   InstaSlider(
       {Key? key,
       required this.img,
+      required this.imageType,
       required this.heading,
       required this.subheading})
       : super(key: key);
@@ -627,7 +774,9 @@ class InstaSlider extends StatelessWidget {
       children: <Widget>[
         Container(
             width: MediaQuery.of(context).size.width,
-            child: Image.asset(img, fit: BoxFit.cover)),
+            child: imageType == "LOCAL"
+                ? Image.asset(img, fit: BoxFit.cover)
+                : Image.network(img, fit: BoxFit.cover)),
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
@@ -640,23 +789,26 @@ class InstaSlider extends StatelessWidget {
                 SizedBox(
                   height: 20,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    text(heading,
-                        textColor: Colors.white,
-                        fontSize: 24.0,
-                        fontFamily: 'Bold',
-                        maxLine: 2),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    text1(subheading,
-                        textColor: Colors.white,
-                        fontFamily: 'Andina',
-                        isLongText: true),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      text(heading,
+                          textColor: Colors.white,
+                          fontSize: 24.0,
+                          fontFamily: 'Bold',
+                          maxLine: 2),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      text1(subheading,
+                          textColor: Colors.white,
+                          fontFamily: 'Andina',
+                          isLongText: true),
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 8,
@@ -665,6 +817,11 @@ class InstaSlider extends StatelessWidget {
             ),
           ),
         ),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     color: Colors.black.withOpacity(0),
+        //   ),
+        // )
       ],
     );
   }

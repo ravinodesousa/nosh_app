@@ -169,6 +169,64 @@ Future<Map<String, dynamic>> updateProfile(
   }
 }
 
+Future<String?> getCarouselImage(String userId) async {
+  try {
+    final url = Uri.parse(baseURL + "user/canteen-image");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({
+        "userId": userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("response.body: ${response.body}");
+      Map<String, dynamic> data = jsonDecode(response.body);
+      return data["image"] == "" ? null : data["image"];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return null;
+  }
+}
+
+Future<Map<String, dynamic>> uploadCanteenCoverImage(
+    String userId, String canteenImage) async {
+  try {
+    final url = Uri.parse(baseURL + "user/update-canteen-image");
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({
+        "userId": userId,
+        "canteenImage": canteenImage,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      dynamic data = jsonDecode(response.body);
+      print("data : ${data}");
+      return {"successful": true, "message": "Image successfully updated"};
+    } else {
+      dynamic data = jsonDecode(response.body);
+      print("data1 : ${data}");
+      return {
+        "successful": false,
+        "message": data["message"] ?? "Request failed. Please try again."
+      };
+    }
+  } catch (err) {
+    print("err : ${err}");
+    return {
+      "successful": false,
+      "message": "Request failed. Please try again."
+    };
+  }
+}
+
 Future<Map<String, dynamic>?> sendOTP(String mobileNo, String type) async {
   try {
     final url = Uri.parse(baseURL + "user/send-otp");
