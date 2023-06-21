@@ -1,6 +1,10 @@
 # nosh_app
 
-A new Flutter project.
+- Whenever you restart the local backend server or host it on a different platform, change the baseURL in lib/config/constants.dart file
+
+# build APK file
+
+run "flutter build apk" in root folder
 
 ## Getting Started
 
