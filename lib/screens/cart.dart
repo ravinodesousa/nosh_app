@@ -50,8 +50,9 @@ class _CartState extends State<Cart> {
 
     userDetails = await getUserDetails(prefs.getString("userId") as String);
 
-    List<CartItem> temp =
-        await getCartItems(prefs.getString("userId") as String);
+    List<CartItem> temp = await getCartItems(
+        prefs.getString("userId") as String,
+        prefs.getString("canteenId") as String);
 
     setState(() {
       _cartitems = temp;
@@ -101,6 +102,7 @@ class _CartState extends State<Cart> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return Scaffold(
       appBar: AppBar(title: Text("My Cart")),
       body: ModalProgressHUD(

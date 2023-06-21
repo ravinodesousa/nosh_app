@@ -594,9 +594,9 @@ Future<Map<String, dynamic>> addToCart(
   }
 }
 
-Future<List<CartItem>> getCartItems(String userId) async {
+Future<List<CartItem>> getCartItems(String userId, String canteenId) async {
   try {
-    Map<String, dynamic> data = {"userId": userId};
+    Map<String, dynamic> data = {"userId": userId, "canteenId": canteenId};
 
     final url = Uri.parse(baseURL + "user/cart-items");
     final response = await http.post(
