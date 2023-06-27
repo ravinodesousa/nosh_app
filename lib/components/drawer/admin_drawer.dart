@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nosh_app/config/palette.dart';
 import 'package:nosh_app/helpers/widgets.dart';
+import 'package:nosh_app/screens/category_list.dart';
 import 'package:nosh_app/screens/commission.dart';
 import 'package:nosh_app/screens/dashboard.dart';
 import 'package:nosh_app/screens/home.dart';
@@ -232,7 +233,13 @@ class _AdminDrawerState extends State<AdminDrawer> {
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),
                 ),
-                getDrawerItem(Icons.logout, "Logout", 7, ind: "log"),
+                getDrawerItem(Icons.category_outlined, "Categories", 7,
+                    ind: "categories", tags: CategoryList()),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Divider(color: Color(0XFFDADADA), height: 1),
+                ),
+                getDrawerItem(Icons.logout, "Logout", 8, ind: "log"),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Divider(color: Color(0XFFDADADA), height: 1),

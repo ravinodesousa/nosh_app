@@ -106,6 +106,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return Scaffold(
       appBar: AppBar(title: Text("Dashboard"), actions: [
         IconButton(

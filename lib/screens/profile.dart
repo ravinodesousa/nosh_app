@@ -282,6 +282,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void checkPermissions() async {
+    await Permission.storage.request();
     await Permission.photos.request();
     var permissionStatus = null;
 
@@ -303,6 +304,8 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       appBar: AppBar(title: Text("Profile")),
       body: ModalProgressHUD(

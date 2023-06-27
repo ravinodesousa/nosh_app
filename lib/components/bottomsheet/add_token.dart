@@ -17,6 +17,7 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 class AddTokenBottomSheet extends StatefulWidget {
   const AddTokenBottomSheet({super.key, required this.initCallback});
 
+/* similar to js callback where we call a function of parent widget. Here initCallback will reinitalize data in parent widget */
   final Callback initCallback;
 
   @override
@@ -34,21 +35,24 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    // initalize data
     initData();
   }
 
   void initData() async {
     final SharedPreferences prefs = await _prefs;
 
+    // fetching user_id from SharedPreferences
     setState(() {
       userId = prefs.getString("userId") as String;
     });
   }
 
+/* function called when  user clicks on "Pay" button. This will initiate razorpay for payment and on success calls backend server to update the users total tokens */
   void addTokenHandler() async {
     setState(() {
+      // validating amount
       amountError =
           num.tryParse(tokenAmount.text) == null ? "Invalid Number" : null;
     });
@@ -79,6 +83,7 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
     }
   }
 
+/* calling razorpay package to initiate payment */
   void initPayment(num amount) {
     Razorpay razorpay = Razorpay();
     var options = {
@@ -122,6 +127,8 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
     * 3. Signature
     * */
     print("Payment Successful \n Payment ID: ${response.toString()}");
+
+    // calling backend API endpoint to add tokens
     Map<String, dynamic> result = await addTokenToAccoount(
         userId, response.paymentId as String, tokenAmount.text);
 
@@ -136,12 +143,14 @@ class _AddTokenBottomSheetState extends State<AddTokenBottomSheet> {
     widget.initCallback();
   }
 
+/* called when using wallet in razorpay*/
   void handleExternalWalletSelected(ExternalWalletResponse response) {
     print("External Wallet Selected \n ${response.toString()}");
   }
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,

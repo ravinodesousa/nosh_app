@@ -10,6 +10,7 @@ import 'package:nosh_app/screens/verify_otp.dart';
 class SignupBottomSheet extends StatefulWidget {
   const SignupBottomSheet({super.key, required this.onSigninCallback});
 
+/* similar to js callback where we call a function of parent widget. Here onSigninCallback will show signin popup */
   final SigninCallback onSigninCallback;
 
   @override
@@ -131,6 +132,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,

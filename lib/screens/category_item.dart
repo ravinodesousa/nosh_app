@@ -10,8 +10,10 @@ import 'package:nosh_app/screens/item_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryItem extends StatefulWidget {
-  const CategoryItem({super.key, required this.category});
+  const CategoryItem(
+      {super.key, required this.category, required this.categoryId});
   final String category;
+  final String categoryId;
   @override
   State<CategoryItem> createState() => _CategoryItemState();
 }
@@ -42,7 +44,8 @@ class _CategoryItemState extends State<CategoryItem> {
             ? prefs.getString("canteenId") as String
             : prefs.getString("userId") as String,
         false,
-        category: widget.category != "All" ? widget.category : null);
+        category: widget.category != "All" ? widget.categoryId : null,
+        status: "ALL");
 
     setState(() {
       _items = temp;
@@ -53,6 +56,8 @@ class _CategoryItemState extends State<CategoryItem> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), actions: [
         userType == "USER"

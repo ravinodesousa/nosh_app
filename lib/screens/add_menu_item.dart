@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:nosh_app/data/category_item.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,18 +26,40 @@ class _AddMenuItemState extends State<AddMenuItem> {
   XFile? image;
 
   bool _loading = false;
-  String _categorydropdownvalue = 'Fast Food';
+  String? _categorydropdownvalue = '';
   String _typedropdownvalue = 'Veg';
 
-  var categories = ['Fast Food', 'Dessert', 'Drinks'];
+  List<CategoryItem> categories = [];
   var types = ['Veg', 'Non-Veg'];
 
   String? itemNameError = null;
+  String? itemDescError = null;
   String? itemAmountError = null;
   String? itemImageError = null;
 
   TextEditingController itemName = new TextEditingController();
+  TextEditingController itemDesc = new TextEditingController();
   TextEditingController itemAmount = new TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    initCategory();
+  }
+
+  void initCategory() async {
+    setState(() {
+      _loading = true;
+    });
+    final SharedPreferences prefs = await _prefs;
+
+    List<CategoryItem> temp = await getCategories(false);
+    setState(() {
+      categories = temp;
+      _loading = false;
+      _categorydropdownvalue = temp.length > 0 ? temp.first.id : null;
+    });
+  }
 
   Future getImage(ImageSource media) async {
     var img = await picker.pickImage(source: media);
@@ -114,25 +137,31 @@ class _AddMenuItemState extends State<AddMenuItem> {
     final number = num.tryParse(itemAmount.text.trim());
     dynamic itemAmountValidation = number == null ? "Invalid Number" : null;
 
+    dynamic itemDescValidation =
+        itemDesc.text.isEmpty ? "Description required" : null;
+
     dynamic itemImageValidation = image == null ? "Image not selected" : null;
 
     setState(() {
       itemNameError = itemNameValidation;
+      itemDescError = itemDescValidation;
       itemAmountError = itemAmountValidation;
       itemImageError = itemImageValidation;
     });
 
-    print(image!.path);
+    // print(image!.path);
 
     if (itemNameValidation == null &&
         itemAmountValidation == null &&
-        itemImageValidation == null) {
+        itemImageValidation == null &&
+        itemDescValidation == null) {
       String uploadedFileurl = await uploadFile(File(image!.path));
 
       if (uploadedFileurl != '') {
         Map<String, dynamic> result = await addItem(
             prefs.getString("userId") as String,
             itemName.text,
+            itemDesc.text,
             uploadedFileurl,
             itemAmount.text,
             _categorydropdownvalue,
@@ -147,7 +176,9 @@ class _AddMenuItemState extends State<AddMenuItem> {
         if (result["status"] == 200) {
           setState(() {
             image = null;
-            _categorydropdownvalue = 'Fast Food';
+            _categorydropdownvalue =
+                categories.length > 0 ? categories.first.id : null;
+
             _typedropdownvalue = 'Veg';
           });
           itemName.clear();
@@ -162,6 +193,7 @@ class _AddMenuItemState extends State<AddMenuItem> {
   }
 
   void checkPermissions() async {
+    await Permission.storage.request();
     await Permission.photos.request();
     var permissionStatus = null;
 
@@ -183,6 +215,7 @@ class _AddMenuItemState extends State<AddMenuItem> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return Scaffold(
       appBar: AppBar(title: Text("Add Item")),
       body: ModalProgressHUD(
@@ -196,184 +229,211 @@ class _AddMenuItemState extends State<AddMenuItem> {
               radius: 30,
             ),
           ),
-          child: Padding(
-            padding:
-                const EdgeInsets.only(bottom: 40, left: 20, right: 20, top: 40),
-            child: Column(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                        height: 150,
-                        width: 150,
-                        child: image != null
-                            ? InkWell(
-                                onTap: () {
-                                  checkPermissions();
-                                },
-                                child: Image.file(
-                                  //to show image, you type like this.
-                                  File(image!.path),
-                                  fit: BoxFit.contain,
-                                  // width: MediaQuery.of(context).size.width,
-                                  // height: 300,
-                                ),
-                              )
-                            : Card(
-                                color: Colors.grey,
-                                child: IconButton(
-                                  onPressed: () {
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 40, left: 20, right: 20, top: 40),
+              child: Column(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                          height: 150,
+                          width: 150,
+                          child: image != null
+                              ? InkWell(
+                                  onTap: () {
                                     checkPermissions();
                                   },
-                                  icon: Icon(Icons.add),
-                                  iconSize: 50,
-                                ))),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(itemImageError ?? "Food Image"),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  style: TextStyle(color: Colors.grey.shade700),
-                  decoration: InputDecoration(
-                    errorText: itemNameError,
-                    labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter item name",
-                    labelText: "Item Name",
-                    prefixIcon: Icon(
-                      Icons.lunch_dining,
-                      color: Colors.black,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey.shade700),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade700,
+                                  child: Image.file(
+                                    //to show image, you type like this.
+                                    File(image!.path),
+                                    fit: BoxFit.contain,
+                                    // width: MediaQuery.of(context).size.width,
+                                    // height: 300,
+                                  ),
+                                )
+                              : Card(
+                                  color: Colors.grey,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      checkPermissions();
+                                    },
+                                    icon: Icon(Icons.add),
+                                    iconSize: 50,
+                                  ))),
+                      SizedBox(
+                        height: 10,
                       ),
-                    ),
-                  ),
-                  controller: itemName,
-                ),
-                TextFormField(
-                  style: TextStyle(color: Colors.grey.shade700),
-                  decoration: InputDecoration(
-                    errorText: itemAmountError,
-                    labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter price",
-                    labelText: "Price",
-                    prefixIcon: Icon(
-                      Icons.money,
-                      color: Colors.black,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey.shade700),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                  controller: itemAmount,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Category",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16),
-                          ),
-                          SizedBox(
-                            width: (MediaQuery.of(context).size.width / 2) - 50,
-                            child: DropdownButton(
-                              isExpanded: true,
-                              // Initial Value
-                              value: _categorydropdownvalue,
-
-                              // Down Arrow Icon
-                              icon: const Icon(Icons.keyboard_arrow_down),
-
-                              // Array list of items
-                              items: categories.map((String items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _categorydropdownvalue = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Type",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16),
-                          ),
-                          SizedBox(
-                            width: (MediaQuery.of(context).size.width / 2) - 50,
-                            child: DropdownButton(
-                              isExpanded: true,
-                              // Initial Value
-                              value: _typedropdownvalue,
-
-                              // Down Arrow Icon
-
-                              icon: const Icon(Icons.keyboard_arrow_down),
-
-                              // Array list of items
-                              items: types.map((String items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _typedropdownvalue = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                      Text(itemImageError ?? "Food Image"),
                     ],
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    addItemHandler();
-                  },
-                  child: Text("ADD ITEM"),
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                )
-              ],
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemNameError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter item name",
+                      labelText: "Item Name",
+                      prefixIcon: Icon(
+                        Icons.lunch_dining,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: itemName,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemAmountError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter price",
+                      labelText: "Price",
+                      prefixIcon: Icon(
+                        Icons.money,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: itemAmount,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemDescError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter item description",
+                      labelText: "Description",
+                      prefixIcon: Icon(
+                        Icons.description,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: itemDesc,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Category",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
+                            SizedBox(
+                              width:
+                                  (MediaQuery.of(context).size.width / 2) - 50,
+                              child: DropdownButton(
+                                isExpanded: true,
+                                // Initial Value
+                                value: _categorydropdownvalue,
+
+                                // Down Arrow Icon
+                                icon: const Icon(Icons.keyboard_arrow_down),
+
+                                // Array list of items
+                                items: categories.map((CategoryItem items) {
+                                  return DropdownMenuItem(
+                                    value: items.id,
+                                    child: Text(items.name ?? ''),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _categorydropdownvalue = newValue!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Type",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
+                            SizedBox(
+                              width:
+                                  (MediaQuery.of(context).size.width / 2) - 50,
+                              child: DropdownButton(
+                                isExpanded: true,
+                                // Initial Value
+                                value: _typedropdownvalue,
+
+                                // Down Arrow Icon
+
+                                icon: const Icon(Icons.keyboard_arrow_down),
+
+                                // Array list of items
+                                items: types.map((String items) {
+                                  return DropdownMenuItem(
+                                    value: items,
+                                    child: Text(items),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _typedropdownvalue = newValue!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      addItemHandler();
+                    },
+                    child: Text("ADD ITEM"),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  )
+                ],
+              ),
             ),
           )),
     );

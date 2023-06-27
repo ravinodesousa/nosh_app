@@ -8,6 +8,7 @@ import 'package:nosh_app/helpers/validation.dart';
 class PasswordResetBottomSheet extends StatefulWidget {
   const PasswordResetBottomSheet({super.key, required this.onSigninCallback});
 
+/* similar to js callback where we call a function of parent widget. Here onSigninCallback will show signin popup */
   final SigninCallback onSigninCallback;
 
   @override
@@ -33,6 +34,7 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
 
   String otp = '';
 
+/* clears form and reinitalizes variables to default values */
   void resetStateHandler() {
     setState(() {
       show_otp = false;
@@ -52,6 +54,7 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
 
   void _handleResetPasswordHandler() async {
     if (!show_otp) {
+      /* Sending OTP */
       // check if mobile number is entered
       Map<String, dynamic> validateMobileNo =
           isValidMobileNo(resetMobileNo.text.trim());
@@ -81,8 +84,9 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
         }
       }
     } else if (!is_otp_verified) {
-      // check if otp is entered
+      /* verifying OTP */
 
+      // check if otp is entered
       if (otp.length != 5) {
         Fluttertoast.showToast(
             msg: "Enter OTP",
@@ -114,6 +118,8 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
         }
       }
     } else {
+      /* Sending request to backend server to update password */
+
       // check if password and confirm password are entered
       String? validatePassword =
           resetPassword.text.trim() == '' ? "Password is required" : null;
@@ -128,8 +134,6 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
       });
 
       if (passwordError == null && confirmPasswordError == null) {
-        // todo: call api to reset OTP
-
         Map<String, dynamic>? response = await resetUserPassword(
             resetMobileNo.text.trim(), resetPassword.text);
         print("response3333 ${response}");
@@ -148,15 +152,11 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
         }
       }
     }
-    // !show_otp
-    //   ? "Send OTP"
-    //   : is_otp_verified
-    //       ? "Reset"
-    //       : "Verify OTP"
   }
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,
@@ -219,7 +219,7 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
                       height: show_otp ? 40 : 0,
                     ),
 
-// Otp view
+                    /* OTP input shown after user enters mobile no and backend server successfully sends OTP to mobile no */
                     if (show_otp)
                       OtpTextField(
                         numberOfFields: 5,
@@ -246,11 +246,11 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
                           });
                         }, // end onSubmit
                       ),
-
                     SizedBox(
                       height: show_otp ? 40 : 0,
                     ),
 
+                    /* after OTP is verified with backend server, password and confirm password fields are shown to reset password */
                     if (is_otp_verified) ...[
                       TextFormField(
                         obscureText: obscure_password,
@@ -325,7 +325,6 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
                         controller: resetConfirmPassword,
                       )
                     ],
-
                     SizedBox(
                       height: 30,
                     ),
@@ -376,7 +375,6 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
                               resetStateHandler();
                               Navigator.pop(context);
                               widget.onSigninCallback(context);
-                              //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginPage()));
                             },
                             child: Text(
                               "Sign In",

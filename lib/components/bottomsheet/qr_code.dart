@@ -25,6 +25,7 @@ class _QrCodeBottomSheetState extends State<QrCodeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,

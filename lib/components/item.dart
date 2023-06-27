@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nosh_app/data/category_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:nosh_app/screens/item_detail.dart';
 
 class Item extends StatelessWidget {
-  String name, image, price, description, category, type, inv;
+  String name, image, price, description, type, inv;
+  CategoryItem category;
   num rating, ratingcount, reviewcount, rate1, rate2, rate3, rate4, rate5;
   int index;
   Product item;

@@ -87,6 +87,8 @@ class _OrderDetailState extends State<OrderDetail> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       // extendBodyBehindAppBar: true,
       extendBody: true,

@@ -25,15 +25,63 @@ class _CartState extends State<Cart> {
   User? userDetails = null;
 
   String _timeslotdropdownvalue = '09:00 AM - 10:00 AM';
-  var _timeslots = [
-    "09:00 AM - 10:00 AM",
-    "10:00 AM - 11:00 AM",
-    "11:00 AM - 12:00 PM",
-    "12:00 PM - 01:00 PM",
-    "01:00 PM - 02:00 PM",
-    "02:00 PM - 03:00 PM",
-    "03:00 PM - 04:00 PM",
-    "04:00 PM - 05:00 PM",
+  List<Map<String, dynamic>> _timeslots = [
+    {
+      "text": "09:00 AM - 10:00 AM",
+      "start_hour": 09,
+      "end_hour": 10,
+      "start_min": 00,
+      "end_min": 00
+    },
+    {
+      "text": "10:00 AM - 11:00 AM",
+      "start_hour": 10,
+      "end_hour": 11,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "11:00 AM - 12:00 PM",
+      "start_hour": 11,
+      "end_hour": 12,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "12:00 PM - 01:00 PM",
+      "start_hour": 12,
+      "end_hour": 13,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "01:00 PM - 02:00 PM",
+      "start_hour": 13,
+      "end_hour": 14,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "02:00 PM - 03:00 PM",
+      "start_hour": 14,
+      "end_hour": 15,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "03:00 PM - 04:00 PM",
+      "start_hour": 15,
+      "end_hour": 16,
+      "start_min": 01,
+      "end_min": 00
+    },
+    {
+      "text": "04:00 PM - 05:00 PM",
+      "start_hour": 16,
+      "end_hour": 17,
+      "start_min": 01,
+      "end_min": 00
+    },
   ];
 
   @override
@@ -43,9 +91,19 @@ class _CartState extends State<Cart> {
   }
 
   void initData() async {
+    List<Map<String, dynamic>> filteredSlots = _timeslots
+        .where((Map<String, dynamic> item) =>
+            DateTime.now().hour <= item["start_hour"])
+        .toList();
     setState(() {
       _loading = true;
+      _timeslots = filteredSlots;
+      _timeslotdropdownvalue =
+          filteredSlots.length > 0 ? filteredSlots.first["text"] : "";
     });
+
+    print("DateTime: ${DateTime.now().hour}:${DateTime.now().minute}");
+
     final SharedPreferences prefs = await _prefs;
 
     userDetails = await getUserDetails(prefs.getString("userId") as String);
@@ -295,61 +353,73 @@ class _CartState extends State<Cart> {
                     SizedBox(
                       height: 20,
                     ),
-                    Column(
-                      children: [
-                        Text(
-                          "Time Slot",
-                          style: TextStyle(
-                              fontSize: 19, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 2,
-                          child: DropdownButton(
-                            isExpanded: true,
-                            // Initial Value
-                            value: _timeslotdropdownvalue,
+                    _timeslots.length > 0
+                        ? Column(
+                            children: [
+                              Text(
+                                "Time Slot",
+                                style: TextStyle(
+                                    fontSize: 19, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 2,
+                                child: DropdownButton(
+                                  isExpanded: true,
+                                  // Initial Value
+                                  value: _timeslotdropdownvalue,
 
-                            // Down Arrow Icon
-                            icon: const Icon(Icons.keyboard_arrow_down),
+                                  // Down Arrow Icon
+                                  icon: const Icon(Icons.keyboard_arrow_down),
 
-                            // Array list of items
-                            items: _timeslots.map((String items) {
-                              return DropdownMenuItem(
-                                value: items,
-                                child: Text(items),
-                              );
-                            }).toList(),
-                            // After selecting the desired option,it will
-                            // change button value to selected value
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _timeslotdropdownvalue = newValue!;
-                              });
-                            },
+                                  // Array list of items
+                                  items: _timeslots
+                                      .map((Map<String, dynamic> items) {
+                                    return DropdownMenuItem(
+                                      value: items["text"],
+                                      child: Text(items["text"]),
+                                    );
+                                  }).toList(),
+                                  // After selecting the desired option,it will
+                                  // change button value to selected value
+                                  onChanged: (dynamic? newValue) {
+                                    setState(() {
+                                      _timeslotdropdownvalue =
+                                          newValue! as String;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            "All Canteens closed",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
                     SizedBox(
                       height: 20,
                     ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        margin: const EdgeInsets.all(5),
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => OrderSummary(
-                                    cartItems: _cartitems,
-                                    timeSlot: _timeslotdropdownvalue,
-                                    userDetails: userDetails)));
-                          },
-                          child: const Text('Order'),
+                    if (_timeslots.length > 0)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          margin: const EdgeInsets.all(5),
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => OrderSummary(
+                                      cartItems: _cartitems,
+                                      timeSlot: _timeslotdropdownvalue,
+                                      userDetails: userDetails)));
+                            },
+                            child: const Text('Order'),
+                          ),
                         ),
-                      ),
-                    )
+                      )
                   ],
                 ),
               )

@@ -11,13 +11,14 @@ import 'package:nosh_app/components/drawer/canteen_drawer.dart';
 import 'package:nosh_app/components/drawer/user_drawer.dart';
 import 'package:nosh_app/components/item.dart';
 import 'package:nosh_app/config/palette.dart';
+import 'package:nosh_app/data/category_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/storage.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:nosh_app/screens/cart.dart';
-import 'package:nosh_app/screens/category_item.dart';
+import 'package:nosh_app/screens/category_item.dart' as category_item_screen;
 import 'package:nosh_app/screens/search.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,22 +30,16 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  List<Map<String, String>> Categories = [
-    {"title": "Fast Food", "image": "assets/icons/fast-food.png"},
-    {"title": "Drinks", "image": "assets/icons/drinks.png"},
-    {"title": "Dessert", "image": "assets/icons/dessert.png"},
-    {"title": "All", "image": "assets/icons/all-foods.png"}
-  ];
+  // List<Category> Categories = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   final ImagePicker picker = ImagePicker();
   XFile? image;
 
-  Map<String, List<Product>> _trendingItems = {
-    "fastFoods": [],
-    "desserts": [],
-    "drinks": [],
+  Map<String, dynamic> _trendingItems = {
+    "categories": [],
+    "data": [],
     "trendingFoods": []
   };
   bool _loading = false;
@@ -75,7 +70,7 @@ class _HomeState extends State<Home> {
     });
     final SharedPreferences prefs = await _prefs;
 
-    Map<String, List<Product>> trendingItems = await getTrendingItems(
+    Map<String, dynamic> trendingItems = await getTrendingItems(
         prefs.getString("userType") == "USER"
             ? prefs.getString("canteenId") as String
             : prefs.getString("userId") as String);
@@ -84,6 +79,13 @@ class _HomeState extends State<Home> {
         prefs.getString("userType") == "USER"
             ? prefs.getString("canteenId") as String
             : prefs.getString("userId") as String);
+
+    (trendingItems["categories"] as List).add({
+      "_id": "",
+      "name": "All",
+      "image":
+          "https://firebasestorage.googleapis.com/v0/b/nosh-canteen-mgt.appspot.com/o/all-foods.png?alt=media&token=33be3a37-ec2d-4c78-89cb-109d2295dd17"
+    });
 
     setState(() {
       userId = prefs.getString("userId") as String;
@@ -159,6 +161,7 @@ class _HomeState extends State<Home> {
   }
 
   void checkPermissions() async {
+    await Permission.storage.request();
     await Permission.photos.request();
     var permissionStatus = null;
 
@@ -225,9 +228,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // changeStatusColor(Colors.transparent);
     double expandHeight = MediaQuery.of(context).size.height * 0.28;
     var width = MediaQuery.of(context).size.width;
+
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -453,13 +458,16 @@ class _HomeState extends State<Home> {
                             height: 100,
                             child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: Categories.length,
+                                itemCount: _trendingItems["categories"]?.length,
                                 shrinkWrap: true,
                                 itemBuilder: (context, index) {
+                                  CategoryItem cat = CategoryItem.fromJson(
+                                      _trendingItems["categories"]![index]);
                                   return Filter(
-                                    title: Categories[index]["title"],
-                                    image: Categories[index]["image"],
+                                    title: cat.name,
+                                    image: cat.image,
                                     index: index,
+                                    id: cat.id,
                                   );
                                 }),
                           ),
@@ -491,28 +499,17 @@ class _HomeState extends State<Home> {
                                         0,
                                 shrinkWrap: true,
                                 itemBuilder: (context, index) {
+                                  Product prod = Product.fromJson(
+                                      _trendingItems["trendingFoods"]![index]);
                                   return Item(
                                       index: index,
-                                      name: _trendingItems[
-                                                  "trendingFoods"]![index]
-                                              .name ??
-                                          '',
-                                      image: _trendingItems["trendingFoods"]![
-                                                  index]
-                                              .image ??
-                                          '',
-                                      price: '${_trendingItems["trendingFoods"]![index].price}' ??
-                                          '',
+                                      name: prod.name ?? '',
+                                      image: prod.image ?? '',
+                                      price: '${prod.price}' ?? '',
                                       rating: 3,
                                       description: "test",
-                                      category: _trendingItems[
-                                                  "trendingFoods"]![index]
-                                              .category ??
-                                          '',
-                                      type: _trendingItems["trendingFoods"]![
-                                                  index]
-                                              .type ??
-                                          '',
+                                      category: prod.category as CategoryItem,
+                                      type: prod.type ?? '',
                                       inv: "45",
                                       rate1: 4,
                                       rate2: 4,
@@ -521,8 +518,7 @@ class _HomeState extends State<Home> {
                                       rate5: 4,
                                       ratingcount: 4,
                                       reviewcount: 34,
-                                      item: _trendingItems["trendingFoods"]![
-                                          index]);
+                                      item: prod);
                                 },
                               ),
                             ),
@@ -533,219 +529,68 @@ class _HomeState extends State<Home> {
                         height: 16.0,
                       ),
                     ],
-                    Container(
-                      decoration: boxDecoration(showShadow: true, radius: 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              mHeading("Fast Food"),
-                              mViewAll(
-                                context,
-                                "View All",
-                                tags: CategoryItem(category: "Fast Food"),
+                    ...(_trendingItems["data"] as List)
+                        .map(
+                          (dynamic item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Container(
+                              decoration:
+                                  boxDecoration(showShadow: true, radius: 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      mHeading(item["name"]),
+                                      mViewAll(
+                                        context,
+                                        "View All",
+                                        tags: category_item_screen.CategoryItem(
+                                            category: item["name"],
+                                            categoryId: item["id"]),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 240,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      itemCount: item["items"]?.length ?? 0,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        Product prod = Product.fromJson(
+                                            item["items"][index]);
+                                        return Item(
+                                            index: index,
+                                            name: prod.name ?? '',
+                                            image: prod.image ?? '',
+                                            price: '${prod.price}' ?? '',
+                                            rating: 3,
+                                            description: "test",
+                                            category:
+                                                prod.category as CategoryItem,
+                                            type: prod.type ?? '',
+                                            inv: "45",
+                                            rate1: 4,
+                                            rate2: 4,
+                                            rate3: 4,
+                                            rate4: 4,
+                                            rate5: 4,
+                                            ratingcount: 4,
+                                            reviewcount: 34,
+                                            item: prod);
+                                      },
+                                    ),
+                                  ),
+                                ].toList(),
                               ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 240,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.only(bottom: 8.0),
-                              itemCount:
-                                  _trendingItems["fastFoods"]?.length ?? 0,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return Item(
-                                    index: index,
-                                    name: _trendingItems["fastFoods"]![index]
-                                            .name ??
-                                        '',
-                                    image: _trendingItems["fastFoods"]![index]
-                                            .image ??
-                                        '',
-                                    price:
-                                        '${_trendingItems["fastFoods"]![index].price}' ??
-                                            '',
-                                    rating: 3,
-                                    description: "test",
-                                    category:
-                                        _trendingItems["fastFoods"]![index]
-                                                .category ??
-                                            '',
-                                    type: _trendingItems["fastFoods"]![index]
-                                            .type ??
-                                        '',
-                                    inv: "45",
-                                    rate1: 4,
-                                    rate2: 4,
-                                    rate3: 4,
-                                    rate4: 4,
-                                    rate5: 4,
-                                    ratingcount: 4,
-                                    reviewcount: 34,
-                                    item: _trendingItems["fastFoods"]![index]);
-                              },
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 16.0,
-                    ),
-                    Container(
-                      decoration: boxDecoration(showShadow: true, radius: 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              mHeading("Drinks"),
-                              mViewAll(
-                                context,
-                                "View All",
-                                tags: CategoryItem(category: "Drinks"),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 240,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.only(bottom: 8.0),
-                              itemCount: _trendingItems["drinks"]?.length ?? 0,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return Item(
-                                    index: index,
-                                    name:
-                                        _trendingItems["drinks"]![index].name ??
-                                            '',
-                                    image: _trendingItems["drinks"]![index]
-                                            .image ??
-                                        '',
-                                    price:
-                                        '${_trendingItems["drinks"]![index].price}' ??
-                                            '',
-                                    rating: 3,
-                                    description: "test",
-                                    category: _trendingItems["drinks"]![index]
-                                            .category ??
-                                        '',
-                                    type:
-                                        _trendingItems["drinks"]![index].type ??
-                                            '',
-                                    inv: "45",
-                                    rate1: 4,
-                                    rate2: 4,
-                                    rate3: 4,
-                                    rate4: 4,
-                                    rate5: 4,
-                                    ratingcount: 4,
-                                    reviewcount: 34,
-                                    item: _trendingItems["drinks"]![index]);
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    // Container(
-                    //   decoration: boxDecoration(showShadow: true, radius: 0),
-                    //   child: Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: <Widget>[
-                    //       mHeading("Get Inspired By Collections"),
-                    //       SizedBox(
-                    //         height: 250,
-                    //         child: ListView.builder(
-                    //           scrollDirection: Axis.horizontal,
-                    //           itemCount: dashlistings.length,
-                    //           shrinkWrap: true,
-                    //           itemBuilder: (context, index) {
-                    //             return Collection(dashlistings[index], index);
-                    //           },
-                    //         ),
-                    //       ),
-                    //       SizedBox(height: 16.0),
-                    //     ],
-                    //   ),
-                    // ),
-                    SizedBox(
-                      height: 16.0,
-                    ),
-                    Container(
-                      decoration: boxDecoration(showShadow: true, radius: 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              mHeading("Desserts"),
-                              mViewAll(
-                                context,
-                                "View All",
-                                tags: CategoryItem(category: "Desserts"),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 240,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.only(bottom: 8.0),
-                              itemCount:
-                                  _trendingItems["desserts"]?.length ?? 0,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return Item(
-                                    index: index,
-                                    name: _trendingItems["desserts"]![index]
-                                            .name ??
-                                        '',
-                                    image: _trendingItems["desserts"]![
-                                                index]
-                                            .image ??
-                                        '',
-                                    price:
-                                        '${_trendingItems["desserts"]![index].price}' ??
-                                            '',
-                                    rating: 3,
-                                    description: "test",
-                                    category: _trendingItems["desserts"]![index]
-                                            .category ??
-                                        '',
-                                    type: _trendingItems["desserts"]![index]
-                                            .type ??
-                                        '',
-                                    inv: "45",
-                                    rate1: 4,
-                                    rate2: 4,
-                                    rate3: 4,
-                                    rate4: 4,
-                                    rate5: 4,
-                                    ratingcount: 4,
-                                    reviewcount: 34,
-                                    item: _trendingItems["desserts"]![index]);
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
+                        )
+                        .toList(),
                   ],
                 ),
               ),
@@ -831,8 +676,9 @@ class Filter extends StatelessWidget {
   String? title;
   String? image;
   int? index;
+  String? id;
 
-  Filter({this.title, this.image, this.index});
+  Filter({this.title, this.image, this.index, this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -840,9 +686,8 @@ class Filter extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => CategoryItem(
-                  category: title as String,
-                )));
+            builder: (context) => category_item_screen.CategoryItem(
+                category: title as String, categoryId: id as String)));
       },
       child: Container(
         margin: EdgeInsets.only(left: 8, right: 8),
@@ -853,7 +698,7 @@ class Filter extends StatelessWidget {
                   boxDecoration(bgColor: Colors.grey.shade200, radius: 12),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Image.asset(
+                child: Image.network(
                   image.toString(),
                   height: width * 0.12,
                   width: width * 0.12,

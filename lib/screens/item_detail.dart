@@ -75,6 +75,8 @@ class _ItemDetailState extends State<ItemDetail> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       // extendBodyBehindAppBar: true,
       extendBody: true,
@@ -106,187 +108,229 @@ class _ItemDetailState extends State<ItemDetail> {
             radius: 30,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 300,
-                width: MediaQuery.of(context).size.width,
-                child: Image.network(
-                  widget.itemDetails.image ??
-                      "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bWlsa3NoYWtlfGVufDB8fDB8fA%3D%3D&w=1000&q=80",
-                  alignment: Alignment.center,
-                  fit: BoxFit.contain,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 300,
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.network(
+                    widget.itemDetails.image ??
+                        "https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bWlsa3NoYWtlfGVufDB8fDB8fA%3D%3D&w=1000&q=80",
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    top: 30, bottom: 30, left: 30, right: 30),
-                child: Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          widget.itemDetails.name ?? '',
-                          style: TextStyle(
-                              fontSize: 19, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "${widget.itemDetails.price ?? 0} Rs",
-                          style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 30, bottom: 30, left: 30, right: 30),
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.itemDetails.name ?? '',
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.bold),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "${widget.itemDetails.price ?? 0} Rs",
+                                style: TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green),
+                              ),
+                              if ((widget.itemDetails.rating ?? 0) > 0) ...[
+                                SizedBox(
+                                  height: 6,
+                                ),
+                                Container(
+                                    decoration: new BoxDecoration(
+                                        color:
+                                            (widget.itemDetails.rating ?? 0) > 2
+                                                ? Colors.green
+                                                : Colors.red,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 2,
+                                          bottom: 2),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "${widget.itemDetails.rating ?? 0}",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.white,
+                                            size: 15,
+                                          )
+                                        ],
+                                      ),
+                                    )),
+                              ]
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(widget.itemDetails.category?.name
+                                      .toString()
+                                      .toUpperCase() ??
+                                  '')
+                            ],
+                          ),
+                          widget.itemDetails.type == "Veg"
+                              ? Image.asset(
+                                  "assets/icons/veg.png",
+                                  fit: BoxFit.cover,
+                                  width: 25,
+                                  height: 25,
+                                )
+                              : Image.asset(
+                                  "assets/icons/non_veg.png",
+                                  fit: BoxFit.cover,
+                                  width: 25,
+                                  height: 25,
+                                )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if ((widget.itemDetails.rating ?? 0) > 0)
-                              Container(
-                                  decoration: new BoxDecoration(
-                                      color:
-                                          (widget.itemDetails.rating ?? 0) > 2
-                                              ? Colors.green
-                                              : Colors.red,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10, right: 10, top: 2, bottom: 2),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "${widget.itemDetails.rating ?? 0}",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                        Icon(
-                                          Icons.star,
-                                          color: Colors.white,
-                                          size: 15,
-                                        )
-                                      ],
-                                    ),
-                                  )),
+                            Text(
+                              "Description",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
                             SizedBox(
                               height: 10,
                             ),
-                            Text(widget.itemDetails.category
-                                    .toString()
-                                    .toUpperCase() ??
-                                '')
+                            Text(
+                              "${widget.itemDetails.description ?? ''}",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
                           ],
                         ),
-                        widget.itemDetails.type == "Veg"
-                            ? Image.asset(
-                                "assets/icons/veg.png",
-                                fit: BoxFit.cover,
-                                width: 25,
-                                height: 25,
-                              )
-                            : Image.asset(
-                                "assets/icons/non_veg.png",
-                                fit: BoxFit.cover,
-                                width: 25,
-                                height: 25,
-                              )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    userType == "USER"
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Column(
-                                children: [
-                                  Text(
-                                    "Quantity",
-                                    style: TextStyle(fontSize: 19),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          quantityBtnHandler("INCREMENT");
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(30),
-                                                  bottomLeft:
-                                                      Radius.circular(30))),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8),
-                                            child: Icon(
-                                              Icons.add,
-                                              color: Colors.white,
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      userType == "USER"
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Quantity",
+                                      style: TextStyle(fontSize: 19),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            quantityBtnHandler("INCREMENT");
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(30),
+                                                    bottomLeft:
+                                                        Radius.circular(30))),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Icon(
+                                                Icons.add,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(14),
-                                        child: Text(
-                                          quantity.toString(),
-                                          style: TextStyle(fontSize: 19),
+                                        Padding(
+                                          padding: const EdgeInsets.all(14),
+                                          child: Text(
+                                            quantity.toString(),
+                                            style: TextStyle(fontSize: 19),
+                                          ),
                                         ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          quantityBtnHandler("DECREMENT");
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(30),
-                                                  bottomRight:
-                                                      Radius.circular(30))),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8),
-                                            child: Icon(
-                                              Icons.remove,
-                                              color: Colors.white,
+                                        InkWell(
+                                          onTap: () {
+                                            quantityBtnHandler("DECREMENT");
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.only(
+                                                    topRight:
+                                                        Radius.circular(30),
+                                                    bottomRight:
+                                                        Radius.circular(30))),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Icon(
+                                                Icons.remove,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  addToCartHandler();
-                                },
-                                child: Text("Add To Cart"),
-                              )
-                            ],
-                          )
-                        : SizedBox(),
-                  ],
-                ),
-              )
-            ],
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    addToCartHandler();
+                                  },
+                                  child: Text("Add To Cart"),
+                                )
+                              ],
+                            )
+                          : SizedBox(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

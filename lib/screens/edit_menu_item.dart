@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:nosh_app/data/category_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/screens/menu_list.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -29,17 +30,19 @@ class _EditMenuItemState extends State<EditMenuItem> {
   XFile? image;
 
   bool _loading = false;
-  String _categorydropdownvalue = 'Fast Food';
+  String? _categorydropdownvalue = '';
   String _typedropdownvalue = 'Veg';
 
-  var categories = ['Fast Food', 'Dessert', 'Drinks'];
+  List<CategoryItem> categories = [];
   var types = ['Veg', 'Non-Veg'];
 
   String? itemNameError = null;
+  String? itemDescError = null;
   String? itemAmountError = null;
   String? itemImageError = null;
 
   TextEditingController itemName = new TextEditingController();
+  TextEditingController itemDesc = new TextEditingController();
   TextEditingController itemAmount = new TextEditingController();
 
   Future getImage(ImageSource media) async {
@@ -123,15 +126,20 @@ class _EditMenuItemState extends State<EditMenuItem> {
             ? "Image not selected"
             : null;
 
+    dynamic itemDescValidation =
+        itemDesc.text.isEmpty ? "Description required" : null;
+
     setState(() {
       itemNameError = itemNameValidation;
+      itemDescError = itemDescValidation;
       itemAmountError = itemAmountValidation;
       itemImageError = itemImageValidation;
     });
 
     if (itemNameValidation == null &&
         itemAmountValidation == null &&
-        itemImageValidation == null) {
+        itemImageValidation == null &&
+        itemDescValidation == null) {
       String uploadedFileurl = widget.productData.image as String;
 
       if (image != null) {
@@ -143,6 +151,7 @@ class _EditMenuItemState extends State<EditMenuItem> {
             prefs.getString("userId") as String,
             widget.productData.id as String,
             itemName.text,
+            itemDesc.text,
             uploadedFileurl,
             itemAmount.text,
             _categorydropdownvalue,
@@ -165,17 +174,29 @@ class _EditMenuItemState extends State<EditMenuItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    initData();
+  }
+
+  void initData() async {
+    setState(() {
+      _loading = true;
+    });
+    List<CategoryItem> temp = await getCategories(false);
 
     itemName.text = widget.productData.name as String;
+    itemDesc.text = widget.productData.description as String;
     itemAmount.text = '${widget.productData.price}';
 
     setState(() {
-      _categorydropdownvalue = widget.productData.category as String;
+      categories = temp;
       _typedropdownvalue = widget.productData.type as String;
+      _loading = false;
+      _categorydropdownvalue = widget.productData.category?.id as String;
     });
   }
 
   void checkPermissions() async {
+    await Permission.storage.request();
     await Permission.photos.request();
     var permissionStatus = null;
 
@@ -197,6 +218,7 @@ class _EditMenuItemState extends State<EditMenuItem> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return Scaffold(
       appBar: AppBar(title: Text("Edit Item")),
       body: ModalProgressHUD(
@@ -210,206 +232,233 @@ class _EditMenuItemState extends State<EditMenuItem> {
               radius: 30,
             ),
           ),
-          child: Padding(
-            padding:
-                const EdgeInsets.only(bottom: 40, left: 20, right: 20, top: 40),
-            child: Column(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                        height: 150,
-                        width: 150,
-                        child: image != null || widget.productData.image != ''
-                            ? InkWell(
-                                onTap: () {
-                                  checkPermissions();
-                                },
-                                child: image != null
-                                    ? Image.file(
-                                        //to show image, you type like this.
-                                        File(image!.path),
-                                        fit: BoxFit.contain,
-                                        // width: MediaQuery.of(context).size.width,
-                                        // height: 300,
-                                      )
-                                    : Image.network(
-                                        //to show image, you type like this.
-                                        widget.productData.image as String,
-                                        fit: BoxFit.contain,
-                                        // width: MediaQuery.of(context).size.width,
-                                        // height: 300,
-                                      ),
-                              )
-                            : Card(
-                                color: Colors.grey,
-                                child: IconButton(
-                                  onPressed: () {
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 40, left: 20, right: 20, top: 40),
+              child: Column(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                          height: 150,
+                          width: 150,
+                          child: image != null || widget.productData.image != ''
+                              ? InkWell(
+                                  onTap: () {
                                     checkPermissions();
                                   },
-                                  icon: Icon(Icons.add),
-                                  iconSize: 50,
-                                ))),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(itemImageError ?? "Food Image"),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  style: TextStyle(color: Colors.grey.shade700),
-                  decoration: InputDecoration(
-                    errorText: itemNameError,
-                    labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter item name",
-                    labelText: "Item Name",
-                    prefixIcon: Icon(
-                      Icons.lunch_dining,
-                      color: Colors.black,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey.shade700),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade700,
+                                  child: image != null
+                                      ? Image.file(
+                                          //to show image, you type like this.
+                                          File(image!.path),
+                                          fit: BoxFit.contain,
+                                          // width: MediaQuery.of(context).size.width,
+                                          // height: 300,
+                                        )
+                                      : Image.network(
+                                          //to show image, you type like this.
+                                          widget.productData.image as String,
+                                          fit: BoxFit.contain,
+                                          // width: MediaQuery.of(context).size.width,
+                                          // height: 300,
+                                        ),
+                                )
+                              : Card(
+                                  color: Colors.grey,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      checkPermissions();
+                                    },
+                                    icon: Icon(Icons.add),
+                                    iconSize: 50,
+                                  ))),
+                      SizedBox(
+                        height: 10,
                       ),
-                    ),
-                  ),
-                  controller: itemName,
-                ),
-                TextFormField(
-                  style: TextStyle(color: Colors.grey.shade700),
-                  decoration: InputDecoration(
-                    errorText: itemAmountError,
-                    labelStyle: TextStyle(color: Colors.black),
-                    hintText: "Enter price",
-                    labelText: "Price",
-                    prefixIcon: Icon(
-                      Icons.money,
-                      color: Colors.black,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey.shade700),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                  controller: itemAmount,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Category",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16),
-                          ),
-                          SizedBox(
-                            width: (MediaQuery.of(context).size.width / 2) - 50,
-                            child: DropdownButton(
-                              isExpanded: true,
-                              // Initial Value
-                              value: _categorydropdownvalue,
-
-                              // Down Arrow Icon
-                              icon: const Icon(Icons.keyboard_arrow_down),
-
-                              // Array list of items
-                              items: categories.map((String items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _categorydropdownvalue = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Type",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 16),
-                          ),
-                          SizedBox(
-                            width: (MediaQuery.of(context).size.width / 2) - 50,
-                            child: DropdownButton(
-                              isExpanded: true,
-                              // Initial Value
-                              value: _typedropdownvalue,
-
-                              // Down Arrow Icon
-
-                              icon: const Icon(Icons.keyboard_arrow_down),
-
-                              // Array list of items
-                              items: types.map((String items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _typedropdownvalue = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                      Text(itemImageError ?? "Food Image"),
                     ],
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => MenuList()));
-                      },
-                      child: Text("CANCEL"),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemNameError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter item name",
+                      labelText: "Item Name",
+                      prefixIcon: Icon(
+                        Icons.lunch_dining,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        updateItemHandler();
-                      },
-                      child: Text("UPDATE ITEM"),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                    )
-                  ],
-                )
-              ],
+                    controller: itemName,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemAmountError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter price",
+                      labelText: "Price",
+                      prefixIcon: Icon(
+                        Icons.money,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: itemAmount,
+                  ),
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: itemDescError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter item description",
+                      labelText: "Description",
+                      prefixIcon: Icon(
+                        Icons.description,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: itemDesc,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Category",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
+                            SizedBox(
+                              width:
+                                  (MediaQuery.of(context).size.width / 2) - 50,
+                              child: DropdownButton(
+                                isExpanded: true,
+                                // Initial Value
+                                value: _categorydropdownvalue,
+
+                                // Down Arrow Icon
+                                icon: const Icon(Icons.keyboard_arrow_down),
+
+                                // Array list of items
+                                items: categories.map((CategoryItem items) {
+                                  return DropdownMenuItem(
+                                    value: items.id,
+                                    child: Text(items.name ?? ''),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _categorydropdownvalue = newValue!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Type",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
+                            SizedBox(
+                              width:
+                                  (MediaQuery.of(context).size.width / 2) - 50,
+                              child: DropdownButton(
+                                isExpanded: true,
+                                // Initial Value
+                                value: _typedropdownvalue,
+
+                                // Down Arrow Icon
+
+                                icon: const Icon(Icons.keyboard_arrow_down),
+
+                                // Array list of items
+                                items: types.map((String items) {
+                                  return DropdownMenuItem(
+                                    value: items,
+                                    child: Text(items),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _typedropdownvalue = newValue!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MenuList()));
+                        },
+                        child: Text("CANCEL"),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          updateItemHandler();
+                        },
+                        child: Text("UPDATE ITEM"),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green),
+                      )
+                    ],
+                  )
+                ],
+              ),
             ),
           )),
     );

@@ -17,6 +17,7 @@ class SigninBottomSheet extends StatefulWidget {
       required this.onSignupCallback,
       required this.onResetPasswordCallback});
 
+/* similar to js callback where we call a function of parent widget. Here onSigninCallback will show signin popup */
   final Callback onSignupCallback;
   final Callback onResetPasswordCallback;
 
@@ -115,6 +116,7 @@ class _SigninBottomSheetState extends State<SigninBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,

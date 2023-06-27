@@ -68,6 +68,8 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       appBar: AppBar(title: Text("Search")),
       body: ModalProgressHUD(

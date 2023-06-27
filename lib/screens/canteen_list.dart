@@ -16,8 +16,85 @@ class CanteenList extends StatefulWidget {
 
 class _CanteenListState extends State<CanteenList> {
   bool _loading = true;
-  List<User> _canteens = [];
+  List<dynamic> _canteens = [];
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Widget CanteenCard(dynamic tmpUser) {
+    if ((tmpUser["special_items"] as List).length > 0) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+                alignment: Alignment.center,
+                child: Text(
+                  tmpUser["user"]["canteenName"] ?? '',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800),
+                )),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              "Today's special",
+              style: TextStyle(
+                  shadows: [Shadow(color: Colors.white, offset: Offset(0, -7))],
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.white,
+                  decorationStyle: TextDecorationStyle.wavy,
+                  decorationThickness: 4,
+                  fontSize: 15,
+                  color: Colors.transparent,
+                  fontWeight: FontWeight.w800),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Expanded(
+                flex: 1,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: (tmpUser["special_items"] as List)
+                        .map((dynamic item) => Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  item["name"],
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800),
+                                )
+                              ],
+                            ))
+                        .toList(),
+                  ),
+                ))
+          ],
+        ),
+      );
+    } else {
+      return Align(
+          alignment: Alignment.center,
+          child: Text(
+            tmpUser["user"]["canteenName"] ?? '',
+            style: TextStyle(
+                fontSize: 18, color: Colors.white, fontWeight: FontWeight.w800),
+          ));
+    }
+  }
 
   @override
   void initState() {
@@ -30,7 +107,7 @@ class _CanteenListState extends State<CanteenList> {
     setState(() {
       _loading = true;
     });
-    List<User> temp = await getAllUsers("CANTEEN");
+    List<dynamic> temp = await getCanteenListWithSpecialMenu();
     print("temp ${temp}");
     setState(() {
       _canteens = temp;
@@ -40,6 +117,7 @@ class _CanteenListState extends State<CanteenList> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,
@@ -101,13 +179,15 @@ class _CanteenListState extends State<CanteenList> {
                                             mainAxisSpacing: 30,
                                             crossAxisSpacing: 30),
                                     children: [
-                                      ..._canteens.map((User tmpUser) =>
+                                      ..._canteens.map((dynamic tmpUser) =>
                                           GestureDetector(
                                             onTap: () async {
                                               final SharedPreferences prefs =
                                                   await _prefs;
-                                              prefs.setString("canteenId",
-                                                  tmpUser.id as String);
+                                              prefs.setString(
+                                                  "canteenId",
+                                                  tmpUser["user"]["_id"]
+                                                      as String);
 
                                               Navigator.of(context).push(
                                                   MaterialPageRoute(
@@ -115,22 +195,12 @@ class _CanteenListState extends State<CanteenList> {
                                                           Home()));
                                             },
                                             child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.yellow[700],
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Align(
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    tmpUser.canteenName ?? '',
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w800),
-                                                  )),
-                                            ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.yellow[700],
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: CanteenCard(tmpUser)),
                                           ))
                                     ],
                                   )

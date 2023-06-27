@@ -16,6 +16,9 @@ class RateOrderBottomSheet extends StatefulWidget {
       {super.key, required this.orderItem, required this.initCallback});
 
   final OrderItem? orderItem;
+
+  /* similar to js callback where we call a function of parent widget. Here onSigninCallback will show signin popup */
+
   final Callback initCallback;
 
   @override
@@ -70,6 +73,7 @@ class _RateOrderBottomSheetState extends State<RateOrderBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
     return ModalProgressHUD(
       inAsyncCall: _loading,
       color: Colors.black54,

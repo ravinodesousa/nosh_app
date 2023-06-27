@@ -210,6 +210,8 @@ class _OrderSummaryState extends State<OrderSummary> {
 
   @override
   Widget build(BuildContext context) {
+    /* ModalProgressHUD - creates an overlay to display loader */
+
     return Scaffold(
       appBar: AppBar(title: Text("Order Summary")),
       body: ModalProgressHUD(
