@@ -55,6 +55,14 @@ class _NotificationListState extends State<NotificationList> {
         {
           return "${path}/icon_order_ready.png";
         }
+      case "ORDER-CANCELED":
+        {
+          return "${path}/icon_order_canceled.png";
+        }
+      case "ORDER-REJECTED":
+        {
+          return "${path}/icon_order_canceled.png";
+        }
       case "ORDER-DELIVERED":
         {
           return "${path}/icon_order_delivered.png";

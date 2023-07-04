@@ -347,6 +347,111 @@ class _OrderStatusState extends State<OrderStatus> {
     );
   }
 
+  Widget RejectedCanceledView(BuildContext context, String status) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 50, bottom: 30, left: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => OrderList()),
+                        (Route<dynamic> route) => false);
+                  },
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  )),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => OrderDetail(
+                            id: order?.id,
+                          )));
+                },
+                child: Text(
+                  "view status",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/icons/icon_order_canceled.png",
+                width: 230,
+                height: 230,
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              Text(
+                status == "ORDER-REJECTED"
+                    ? "Order rejected"
+                    : "Order canceled",
+                style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                formatDateTime(order?.placedOn ?? ''),
+                style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              TextButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        backgroundColor: Colors.white,
+                        context: context,
+                        builder: (ctx) {
+                          return Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: MediaQuery.of(ctx).viewInsets.bottom),
+                              child: QrCodeBottomSheet(
+                                id: order?.id ?? '',
+                              ));
+                        });
+                  },
+                  child: Text(
+                    "View QR Code",
+                    style: TextStyle(color: Colors.white),
+                  ))
+            ],
+          ))
+        ],
+      ),
+    );
+  }
+
   Widget DeliveredView(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 50, bottom: 30, left: 20, right: 20),
@@ -454,7 +559,10 @@ class _OrderStatusState extends State<OrderStatus> {
                           ? AcceptedView(context)
                           : widget.status == "ORDER-READY"
                               ? ReadyView(context)
-                              : DeliveredView(context)))
+                              : widget.status == "ORDER-REJECTED" ||
+                                      widget.status == "ORDER-CANCELED"
+                                  ? RejectedCanceledView(context, widget.status)
+                                  : DeliveredView(context)))
                   : SizedBox()
               // OrderPlacedView(context)
               // AcceptedView(context)

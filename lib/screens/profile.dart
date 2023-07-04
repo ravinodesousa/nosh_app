@@ -206,7 +206,10 @@ class _ProfileState extends State<Profile> {
 
   void logoutHandler() async {
     final SharedPreferences prefs = await _prefs;
+    String fcmToken = prefs.getString("fcmToken") as String;
+
     prefs.clear().then((value) => {
+          prefs.setString("fcmToken", fcmToken),
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => Auth()),
               (Route<dynamic> route) => false)

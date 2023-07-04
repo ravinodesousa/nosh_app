@@ -43,6 +43,14 @@ showAlertDialog(BuildContext context, RemoteMessage message) {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => OrderStatus(
                   id: notification_data["id"], status: "ORDER-DELIVERED")));
+        } else if (notification_data["type"] == "ORDER-REJECTED") {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => OrderStatus(
+                  id: notification_data["id"], status: "ORDER-REJECTED")));
+        } else if (notification_data["type"] == "ORDER-CANCELED") {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => OrderStatus(
+                  id: notification_data["id"], status: "ORDER-CANCELED")));
         } else if (notification_data["type"] == "MONEY-CREDITED") {
         } else if (notification_data["type"] == "MONEY-REQUESTED") {
         } else if (notification_data["type"] == "NEW-CANTEEN-REGISTRATION") {

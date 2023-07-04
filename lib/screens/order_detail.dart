@@ -131,14 +131,19 @@ class _OrderDetailState extends State<OrderDetail> {
                             children: [
                               Text("Status : "),
                               Chip(
-                                  backgroundColor:
-                                      orderDetail?.orderStatus == "PENDING"
-                                          ? Colors.blue
+                                  backgroundColor: orderDetail?.orderStatus ==
+                                          "PENDING"
+                                      ? Colors.blue
+                                      : orderDetail?.orderStatus ==
+                                                  "ACCEPTED" ||
+                                              orderDetail?.orderStatus ==
+                                                  "READY"
+                                          ? Colors.green
                                           : orderDetail?.orderStatus ==
-                                                      "ACCEPTED" ||
+                                                      "REJECTED" ||
                                                   orderDetail?.orderStatus ==
-                                                      "READY"
-                                              ? Colors.green
+                                                      "CANCELED"
+                                              ? Colors.red
                                               : Colors.grey,
                                   labelStyle: TextStyle(
                                       color: Colors.white, fontSize: 13),
@@ -278,7 +283,7 @@ class _OrderDetailState extends State<OrderDetail> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (orderDetail?.orderStatus == "PENDING")
+                                if (orderDetail?.orderStatus == "PENDING") ...[
                                   ElevatedButton(
                                     onPressed: () {
                                       orderStatusChangeHandler(
@@ -295,6 +300,23 @@ class _OrderDetailState extends State<OrderDetail> {
                                             borderRadius:
                                                 BorderRadius.circular(12))),
                                   ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      orderStatusChangeHandler(
+                                          orderDetail?.id ?? '',
+                                          "REJECTED",
+                                          context);
+                                    },
+                                    child: Text("REJECT"),
+                                    style: ElevatedButton.styleFrom(
+                                        textStyle: TextStyle(fontSize: 12),
+                                        padding: EdgeInsets.all(10),
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12))),
+                                  )
+                                ],
                                 if (orderDetail?.orderStatus == "ACCEPTED")
                                   ElevatedButton(
                                     onPressed: () {
@@ -350,7 +372,35 @@ class _OrderDetailState extends State<OrderDetail> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(12))),
-                                  )
+                                  ),
+                                if (orderDetail?.orderStatus == "PENDING")
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      orderStatusChangeHandler(
+                                          orderDetail?.id ?? '',
+                                          "CANCELED",
+                                          context);
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.cancel,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text("Cancel Order")
+                                      ],
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                        textStyle: TextStyle(fontSize: 12),
+                                        padding: EdgeInsets.all(10),
+                                        backgroundColor: Colors.red,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12))),
+                                  ),
                               ],
                             )
                     ],

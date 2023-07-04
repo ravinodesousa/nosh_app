@@ -24,7 +24,15 @@ class _OrderListState extends State<OrderList> {
   bool _loading = true;
   List<OrderItem> _orders = [];
   String userType = '';
-  var orderStatuses = ["ALL", "PENDING", "ACCEPTED", "READY", "DELIVERED"];
+  var orderStatuses = [
+    "ALL",
+    "PENDING",
+    "ACCEPTED",
+    "READY",
+    "DELIVERED",
+    "REJECTED",
+    "CANCELED"
+  ];
   String? _selectedOrderStatus = "ALL";
 
   @override
@@ -218,7 +226,13 @@ class _OrderListState extends State<OrderList> {
                                                                     .orderStatus ==
                                                                 "READY"
                                                         ? Colors.green
-                                                        : Colors.grey,
+                                                        : _orders[index].orderStatus ==
+                                                                    "REJECTED" ||
+                                                                _orders[index]
+                                                                        .orderStatus ==
+                                                                    "CANCELED"
+                                                            ? Colors.red
+                                                            : Colors.grey,
                                                 labelStyle: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 13),
@@ -343,7 +357,7 @@ class _OrderListState extends State<OrderList> {
                                                 CrossAxisAlignment.center,
                                             children: [
                                               if (_orders[index].orderStatus ==
-                                                  "PENDING")
+                                                  "PENDING") ...[
                                                 ElevatedButton(
                                                   onPressed: () {
                                                     orderStatusChangeHandler(
@@ -365,6 +379,28 @@ class _OrderListState extends State<OrderList> {
                                                                       .circular(
                                                                           12))),
                                                 ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    orderStatusChangeHandler(
+                                                        _orders[index].id ?? '',
+                                                        "REJECTED");
+                                                  },
+                                                  child: Text("REJECT"),
+                                                  style: ElevatedButton.styleFrom(
+                                                      textStyle: TextStyle(
+                                                          fontSize: 12),
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12))),
+                                                )
+                                              ],
                                               if (_orders[index].orderStatus ==
                                                   "ACCEPTED")
                                                 ElevatedButton(
@@ -570,7 +606,41 @@ class _OrderListState extends State<OrderList> {
                                                     Text("Call Canteen")
                                                   ],
                                                 ),
-                                              )
+                                              ),
+                                              if (_orders[index].orderStatus ==
+                                                  "PENDING")
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    orderStatusChangeHandler(
+                                                        _orders[index].id ?? '',
+                                                        "CANCELED");
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.cancel,
+                                                        size: 20,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Text("Cancel Order")
+                                                    ],
+                                                  ),
+                                                  style: ElevatedButton.styleFrom(
+                                                      textStyle: TextStyle(
+                                                          fontSize: 12),
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12))),
+                                                ),
                                             ],
                                           )
                                   ]),

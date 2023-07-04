@@ -71,11 +71,13 @@ class _CanteenListState extends State<CanteenList> {
                                 SizedBox(
                                   width: 10,
                                 ),
-                                Text(
-                                  item["name"],
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800),
+                                Expanded(
+                                  child: Text(
+                                    item["name"],
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800),
+                                  ),
                                 )
                               ],
                             ))
