@@ -78,7 +78,8 @@ Future<Map<String, dynamic>> signup(
     String password,
     String mobileNo,
     String institution,
-    String canteenName) async {
+    String canteenName,
+    String upi) async {
   try {
     final url = Uri.parse(baseURL + "user/signup");
     final response = await http.post(
@@ -91,7 +92,8 @@ Future<Map<String, dynamic>> signup(
         "password": password,
         "mobileNo": mobileNo,
         "institution": institution,
-        "canteenName": canteenName
+        "canteenName": canteenName,
+        "upi": upi
       }),
     );
 
@@ -116,17 +118,17 @@ Future<Map<String, dynamic>> signup(
 }
 
 Future<Map<String, dynamic>> updateProfile(
-  String userId,
-  String? profilePic,
-  String? canteenImage,
-  String? name,
-  String? email,
-  String? mobileNo,
-  String? institution,
-  String? canteenName,
-  bool changePassword,
-  String? password,
-) async {
+    String userId,
+    String? profilePic,
+    String? canteenImage,
+    String? name,
+    String? email,
+    String? mobileNo,
+    String? institution,
+    String? canteenName,
+    bool changePassword,
+    String? password,
+    String? upi) async {
   try {
     final url = Uri.parse(baseURL + "user/update-profile");
     final response = await http.post(
@@ -142,7 +144,8 @@ Future<Map<String, dynamic>> updateProfile(
         "canteenName": canteenName,
         "changePassword": changePassword,
         "password": password,
-        "canteenImage": canteenImage
+        "canteenImage": canteenImage,
+        "upi": upi
       }),
     );
 

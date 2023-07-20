@@ -89,13 +89,28 @@ class _TokensState extends State<Tokens> {
     /* ModalProgressHUD - creates an overlay to display loader */
 
     return Scaffold(
-      appBar: AppBar(title: Text("Tokens"), actions: [
-        IconButton(
-            onPressed: () {
-              bottomsheetaddtoken(context);
-            },
-            icon: Icon(Icons.add))
-      ]),
+      appBar: AppBar(
+          title: Text("Tokens"),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Home(),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              )),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  bottomsheetaddtoken(context);
+                },
+                icon: Icon(Icons.add))
+          ]),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black54,

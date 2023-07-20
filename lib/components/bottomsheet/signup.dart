@@ -32,12 +32,14 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
   String? passwordError = null;
   String? mobileNoError = null;
   String? canteenNameError = null;
+  String? canteenUpiError = null;
 
   TextEditingController signupEmail = new TextEditingController();
   TextEditingController signupPassword = new TextEditingController();
   TextEditingController signupName = new TextEditingController();
   TextEditingController signupMobileNo = new TextEditingController();
   TextEditingController signupCanteenName = new TextEditingController();
+  TextEditingController signupCanteenUpi = new TextEditingController();
 
   bool obscurePassword = true;
 
@@ -81,13 +83,19 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
               signupCanteenName.text.trim() == ''
           ? "Canteen name is required"
           : null;
+
+      canteenUpiError = _selectedUserType == "Canteen Owner" &&
+              signupCanteenUpi.text.trim() == ''
+          ? "Canteen UPI is required"
+          : null;
     });
     print("1222 called");
     if (emailValidationResult["is_valid"] &&
         passwordValidationResult["is_valid"] &&
         nameError == null &&
         mobileValidationResult["is_valid"] &&
-        canteenNameError == null) {
+        canteenNameError == null &&
+        canteenUpiError == null) {
       print("signup called");
       Map<String, dynamic> data = await signup(
           _selectedUserType == "Student" ? "USER" : "CANTEEN",
@@ -96,7 +104,8 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
           signupPassword.text,
           signupMobileNo.text,
           _selectedInstitution.id as String,
-          signupCanteenName.text);
+          signupCanteenName.text,
+          signupCanteenUpi.text);
 
       print(data);
 
@@ -119,6 +128,7 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
         signupPassword.clear();
         signupMobileNo.clear();
         signupCanteenName.clear();
+        signupCanteenUpi.clear();
 
         Navigator.pop(context);
         widget.onSigninCallback(context);
@@ -385,13 +395,13 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                       ),
                     ),
                     SizedBox(height: 15),
-                    if (_selectedUserType == "Canteen Owner")
+                    if (_selectedUserType == "Canteen Owner") ...[
                       TextFormField(
                         style: TextStyle(color: Colors.grey.shade700),
                         decoration: InputDecoration(
                           errorText: canteenNameError,
                           labelStyle: TextStyle(color: Colors.black),
-                          hintText: "Select your Canteen Name",
+                          hintText: "Enter your Canteen Name",
                           labelText: "CANTEEN NAME",
                           prefixIcon: Icon(
                             Icons.storefront,
@@ -408,7 +418,32 @@ class _SignupBottomSheetState extends State<SignupBottomSheet> {
                         ),
                         controller: signupCanteenName,
                       ),
-
+                      SizedBox(
+                        height: 30,
+                      ),
+                      TextFormField(
+                        style: TextStyle(color: Colors.grey.shade700),
+                        decoration: InputDecoration(
+                          errorText: canteenUpiError,
+                          labelStyle: TextStyle(color: Colors.black),
+                          hintText: "Enter UPI ID",
+                          labelText: "UPI ID",
+                          prefixIcon: Icon(
+                            Icons.money,
+                            color: Colors.black,
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey.shade700),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                        controller: signupCanteenUpi,
+                      ),
+                    ],
                     SizedBox(
                       height: 30,
                     ),

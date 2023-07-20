@@ -40,6 +40,7 @@ class Item extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) => ItemDetail(
+                      previousRoute: "HOME",
                       // image: image,
                       // name: name,
                       // description: description,

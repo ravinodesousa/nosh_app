@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/data/cart_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
 import 'package:nosh_app/screens/cart.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as Badges;
 
 class ItemDetail extends StatefulWidget {
-  const ItemDetail({super.key, required this.itemDetails});
+  const ItemDetail({super.key, required this.itemDetails, this.previousRoute});
   final Product itemDetails;
+  final String? previousRoute;
+
   @override
   State<ItemDetail> createState() => _ItemDetailState();
 }
@@ -23,6 +27,7 @@ class _ItemDetailState extends State<ItemDetail> {
 
   int quantity = 1;
   String userType = '';
+  int cartItems = 0;
 
   @override
   void initState() {
@@ -34,8 +39,15 @@ class _ItemDetailState extends State<ItemDetail> {
   void initData() async {
     final SharedPreferences prefs = await _prefs;
 
+    List<CartItem> temp2 = await getCartItems(
+        prefs.getString("userId") as String,
+        prefs.containsKey("canteenId")
+            ? prefs.getString("canteenId") as String
+            : '');
+
     setState(() {
       userType = prefs.getString("userType") as String;
+      cartItems = temp2.length;
     });
   }
 
@@ -68,6 +80,8 @@ class _ItemDetailState extends State<ItemDetail> {
         textColor: Colors.white,
         fontSize: 16.0);
 
+    initData();
+
     setState(() {
       _loading = false;
     });
@@ -81,12 +95,29 @@ class _ItemDetailState extends State<ItemDetail> {
       // extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: AppBar(
+          leading: IconButton(
+              onPressed: () {
+                if (widget.previousRoute == "HOME") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Home(),
+                    ),
+                  );
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              )),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.grey.shade100,
           actions: [
             userType == "USER"
-                ? IconButton(
-                    onPressed: () {
+                ? InkWell(
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -94,7 +125,19 @@ class _ItemDetailState extends State<ItemDetail> {
                         ),
                       );
                     },
-                    icon: Icon(Icons.shopping_cart, color: Colors.black))
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 17, right: 20),
+                      child: Badges.Badge(
+                        badgeContent: Text("${cartItems}"),
+                        child: Icon(
+                          Icons.shopping_cart,
+                          color: Colors.black,
+                          size: 25,
+                        ),
+                        badgeStyle: Badges.BadgeStyle(badgeColor: Colors.white),
+                      ),
+                    ),
+                  )
                 : Spacer()
           ]),
       body: ModalProgressHUD(

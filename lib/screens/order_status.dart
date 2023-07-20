@@ -20,14 +20,35 @@ class OrderStatus extends StatefulWidget {
   State<OrderStatus> createState() => _OrderStatusState();
 }
 
-class _OrderStatusState extends State<OrderStatus> {
+class _OrderStatusState extends State<OrderStatus>
+    with SingleTickerProviderStateMixin {
   bool _loading = true;
   OrderItem? order = null;
+  late AnimationController animationController;
 
   @override
   void initState() {
     super.initState();
+
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    )
+      ..forward()
+      ..repeat(
+        reverse: true,
+      );
+
     initData();
+  }
+
+  void dispose() {
+    if (mounted) {
+      try {
+        animationController.dispose();
+      } catch (e) {}
+    }
+    super.dispose();
   }
 
   void initData() async {
@@ -36,6 +57,25 @@ class _OrderStatusState extends State<OrderStatus> {
       order = temp;
       _loading = false;
     });
+  }
+
+  Widget ImageAnimation(String path) {
+    // print("animationController.value, ${animationController.value * 15}");
+    return AnimatedBuilder(
+        animation: animationController,
+        builder: (context, child) {
+          return SizedBox(
+            width: 230,
+            height: 230,
+            child: Center(
+              child: Image.asset(
+                path,
+                width: 230 - animationController.value * 15,
+                height: 230 - animationController.value * 15,
+              ),
+            ),
+          );
+        });
   }
 
   Widget OrderPlacedView(BuildContext context) {
@@ -80,11 +120,7 @@ class _OrderStatusState extends State<OrderStatus> {
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                "assets/icons/icon_order_placed.png",
-                width: 230,
-                height: 230,
-              ),
+              ImageAnimation("assets/icons/icon_order_placed.png"),
               SizedBox(
                 height: 40,
               ),
@@ -183,11 +219,7 @@ class _OrderStatusState extends State<OrderStatus> {
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                "assets/icons/icon_order_accepted.png",
-                width: 230,
-                height: 230,
-              ),
+              ImageAnimation("assets/icons/icon_order_accepted.png"),
               SizedBox(
                 height: 40,
               ),
@@ -286,11 +318,7 @@ class _OrderStatusState extends State<OrderStatus> {
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                "assets/icons/icon_order_ready.png",
-                width: 230,
-                height: 230,
-              ),
+              ImageAnimation("assets/icons/icon_order_ready.png"),
               SizedBox(
                 height: 40,
               ),
@@ -389,11 +417,7 @@ class _OrderStatusState extends State<OrderStatus> {
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                "assets/icons/icon_order_canceled.png",
-                width: 230,
-                height: 230,
-              ),
+              ImageAnimation("assets/icons/icon_order_canceled.png"),
               SizedBox(
                 height: 40,
               ),
@@ -494,11 +518,7 @@ class _OrderStatusState extends State<OrderStatus> {
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                "assets/icons/icon_order_delivered.png",
-                width: 230,
-                height: 230,
-              ),
+              ImageAnimation("assets/icons/icon_order_delivered.png"),
               SizedBox(
                 height: 40,
               ),

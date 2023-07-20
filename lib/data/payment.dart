@@ -7,6 +7,7 @@ class Payment {
       this.startDate,
       this.endDate,
       this.canteenName,
+      this.upi,
       this.canteenMobileNo,
       this.totalAmount,
       this.status,
@@ -20,6 +21,7 @@ class Payment {
   String? canteenMobileNo;
   String? status;
   String? type;
+  String? upi;
 
   factory Payment.fromJson(Map<String, dynamic> json) => Payment(
         id: json["_id"],
@@ -30,5 +32,6 @@ class Payment {
         canteenMobileNo: json["canteenId"]["mobileNo"] ?? '',
         status: json["status"],
         type: json["type"],
+        upi: json["canteenId"]["upi"] ?? '',
       );
 }

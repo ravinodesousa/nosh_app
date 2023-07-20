@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:nosh_app/data/cart_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
 import 'package:nosh_app/helpers/widgets.dart';
@@ -8,6 +9,7 @@ import 'package:nosh_app/screens/cart.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:nosh_app/screens/item_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as Badges;
 
 class CategoryItem extends StatefulWidget {
   const CategoryItem(
@@ -25,6 +27,7 @@ class _CategoryItemState extends State<CategoryItem> {
   List<Product> _items = [];
 
   String userType = '';
+  int cartItems = 0;
 
   @override
   void initState() {
@@ -47,8 +50,15 @@ class _CategoryItemState extends State<CategoryItem> {
         category: widget.category != "All" ? widget.categoryId : null,
         status: "ALL");
 
+    List<CartItem> temp2 = await getCartItems(
+        prefs.getString("userId") as String,
+        prefs.containsKey("canteenId")
+            ? prefs.getString("canteenId") as String
+            : '');
+
     setState(() {
       _items = temp;
+      cartItems = temp2.length;
       _loading = false;
       userType = prefs.getString("userType") as String;
     });
@@ -59,18 +69,49 @@ class _CategoryItemState extends State<CategoryItem> {
     /* ModalProgressHUD - creates an overlay to display loader */
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category), actions: [
-        userType == "USER"
-            ? IconButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) => Cart()));
-                },
-                icon: Icon(Icons.shopping_cart, color: Colors.white))
-            : SizedBox(),
-        IconButton(
-            onPressed: () {}, icon: Icon(Icons.search, color: Colors.white))
-      ]),
+      appBar: AppBar(
+          title: Text(widget.category),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Home(),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              )),
+          actions: [
+            userType == "USER"
+                ? InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Cart(),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 17, right: 10),
+                      child: Badges.Badge(
+                        badgeContent: Text("${cartItems}"),
+                        child: Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                          // size: 25,
+                        ),
+                        badgeStyle: Badges.BadgeStyle(badgeColor: Colors.white),
+                      ),
+                    ),
+                  )
+                : SizedBox(),
+            IconButton(
+                onPressed: () {}, icon: Icon(Icons.search, color: Colors.white))
+          ]),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black54,
@@ -102,6 +143,7 @@ class _CategoryItemState extends State<CategoryItem> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ItemDetail(
+                                previousRoute: "",
                                 itemDetails: _items[index],
                               )));
                     },

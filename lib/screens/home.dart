@@ -11,6 +11,7 @@ import 'package:nosh_app/components/drawer/canteen_drawer.dart';
 import 'package:nosh_app/components/drawer/user_drawer.dart';
 import 'package:nosh_app/components/item.dart';
 import 'package:nosh_app/config/palette.dart';
+import 'package:nosh_app/data/cart_item.dart';
 import 'package:nosh_app/data/category_item.dart';
 import 'package:nosh_app/data/product.dart';
 import 'package:nosh_app/helpers/http.dart';
@@ -22,6 +23,7 @@ import 'package:nosh_app/screens/category_item.dart' as category_item_screen;
 import 'package:nosh_app/screens/search.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as Badges;
 
 class Home extends StatefulWidget {
   @override
@@ -51,6 +53,7 @@ class _HomeState extends State<Home> {
   String canteenName = '';
   String mobileNo = '';
   String? carouselImage = null;
+  int cartItems = 0;
 
   @override
   void initState() {
@@ -87,6 +90,12 @@ class _HomeState extends State<Home> {
           "https://firebasestorage.googleapis.com/v0/b/nosh-canteen-mgt.appspot.com/o/all-foods.png?alt=media&token=33be3a37-ec2d-4c78-89cb-109d2295dd17"
     });
 
+    List<CartItem> temp = await getCartItems(
+        prefs.getString("userId") as String,
+        prefs.containsKey("canteenId")
+            ? prefs.getString("canteenId") as String
+            : '');
+
     setState(() {
       userId = prefs.getString("userId") as String;
       userType = prefs.getString("userType") as String;
@@ -96,6 +105,7 @@ class _HomeState extends State<Home> {
       mobileNo = prefs.getString("mobileNo") as String;
       _trendingItems = trendingItems;
       carouselImage = tempCarouselImage;
+      cartItems = temp.length;
       _loading = false;
     });
   }
@@ -287,7 +297,7 @@ class _HomeState extends State<Home> {
                   title: Container(
                     height: 60,
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
+                      width: MediaQuery.of(context).size.width - 75,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -328,13 +338,8 @@ class _HomeState extends State<Home> {
                               userType == "USER"
                                   ? Stack(
                                       children: <Widget>[
-                                        new IconButton(
-                                          icon: Icon(
-                                            Icons.shopping_cart,
-                                            color: Colors.black,
-                                            size: 25,
-                                          ),
-                                          onPressed: () {
+                                        InkWell(
+                                          onTap: () {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -342,6 +347,16 @@ class _HomeState extends State<Home> {
                                               ),
                                             );
                                           },
+                                          child: Badges.Badge(
+                                            badgeContent: Text("${cartItems}"),
+                                            child: Icon(
+                                              Icons.shopping_cart,
+                                              color: Colors.black,
+                                              size: 25,
+                                            ),
+                                            badgeStyle: Badges.BadgeStyle(
+                                                badgeColor: Colors.white),
+                                          ),
                                         ),
                                         Positioned(
                                             right: 11,

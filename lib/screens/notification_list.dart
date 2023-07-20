@@ -91,7 +91,22 @@ class _NotificationListState extends State<NotificationList> {
     /* ModalProgressHUD - creates an overlay to display loader */
 
     return Scaffold(
-      appBar: AppBar(title: Text("Notification")),
+      appBar: AppBar(
+        title: Text("Notification"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
+      ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black54,

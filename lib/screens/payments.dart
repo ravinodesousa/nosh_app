@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:nosh_app/data/order_item.dart';
 import 'package:nosh_app/data/payment.dart';
@@ -12,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -250,9 +252,50 @@ class _PaymentsState extends State<Payments> {
                                                         '${formatDateTime(payment.endDate ?? '')}'),
                                                   ],
                                                 ),
-                                                SizedBox(
-                                                  height: 10,
+                                                // SizedBox(
+                                                //   height: 10,
+                                                // ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "UPI : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Text(
+                                                        '${payment.upi ?? ''}'),
+                                                    IconButton(
+                                                        onPressed: () async {
+                                                          await Clipboard.setData(
+                                                              ClipboardData(
+                                                                  text:
+                                                                      '${payment.upi ?? ''}'));
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "copied to clipboard",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .BOTTOM,
+                                                              timeInSecForIosWeb:
+                                                                  1,
+                                                              backgroundColor:
+                                                                  Colors.green,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.copy,
+                                                          size: 15,
+                                                        ))
+                                                  ],
                                                 ),
+                                                // SizedBox(
+                                                //   height: 10,
+                                                // ),
                                                 Row(
                                                   children: [
                                                     Text(
@@ -467,9 +510,50 @@ class _PaymentsState extends State<Payments> {
                                                         '${formatDateTime(payment.endDate ?? '')}'),
                                                   ],
                                                 ),
-                                                SizedBox(
-                                                  height: 10,
+                                                // SizedBox(
+                                                //   height: 10,
+                                                // ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "UPI : ",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Text(
+                                                        '${payment.upi ?? ''}'),
+                                                    IconButton(
+                                                        onPressed: () async {
+                                                          await Clipboard.setData(
+                                                              ClipboardData(
+                                                                  text:
+                                                                      '${payment.upi ?? ''}'));
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "copied to clipboard",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .BOTTOM,
+                                                              timeInSecForIosWeb:
+                                                                  1,
+                                                              backgroundColor:
+                                                                  Colors.green,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.copy,
+                                                          size: 15,
+                                                        ))
+                                                  ],
                                                 ),
+                                                // SizedBox(
+                                                //   height: 10,
+                                                // ),
                                                 Row(
                                                   children: [
                                                     Text(

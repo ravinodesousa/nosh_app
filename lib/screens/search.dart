@@ -71,7 +71,22 @@ class _SearchState extends State<Search> {
     /* ModalProgressHUD - creates an overlay to display loader */
 
     return Scaffold(
-      appBar: AppBar(title: Text("Search")),
+      appBar: AppBar(
+        title: Text("Search"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
+      ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black54,
@@ -138,6 +153,7 @@ class _SearchState extends State<Search> {
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ItemDetail(
+                                    previousRoute: "",
                                     itemDetails: _items[index],
                                   )));
                         },

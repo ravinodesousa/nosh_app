@@ -24,7 +24,7 @@ class OrderDetail extends StatefulWidget {
 class _OrderDetailState extends State<OrderDetail> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  bool _loading = true;
+  bool _loading = false;
   String? userType = '';
   OrderItem? orderDetail = null;
 
@@ -36,6 +36,9 @@ class _OrderDetailState extends State<OrderDetail> {
   }
 
   void initData() async {
+    setState(() {
+      _loading = true;
+    });
     final SharedPreferences prefs = await _prefs;
 
     OrderItem? temp = await getOrderDetail(widget.id as String);
@@ -91,7 +94,7 @@ class _OrderDetailState extends State<OrderDetail> {
 
     return Scaffold(
       // extendBodyBehindAppBar: true,
-      extendBody: true,
+      // extendBody: true,
       appBar: AppBar(
         title: Text(orderDetail?.orderId ?? '' as String),
         leading: IconButton(
@@ -116,300 +119,311 @@ class _OrderDetailState extends State<OrderDetail> {
             radius: 30,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: orderDetail != null
-              ? Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Order No : ${orderDetail?.orderId ?? ''}'),
-                          Row(
-                            children: [
-                              Text("Status : "),
-                              Chip(
-                                  backgroundColor: orderDetail?.orderStatus ==
-                                          "PENDING"
-                                      ? Colors.blue
-                                      : orderDetail?.orderStatus ==
-                                                  "ACCEPTED" ||
-                                              orderDetail?.orderStatus ==
-                                                  "READY"
-                                          ? Colors.green
-                                          : orderDetail?.orderStatus ==
-                                                      "REJECTED" ||
-                                                  orderDetail?.orderStatus ==
-                                                      "CANCELED"
-                                              ? Colors.red
-                                              : Colors.grey,
-                                  labelStyle: TextStyle(
-                                      color: Colors.white, fontSize: 13),
-                                  label: Text(
-                                      '${orderDetail?.orderStatus ?? ''}')),
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          userType == "USER"
-                              ? Text(
-                                  'Canteen Name : ${orderDetail?.canteenName ?? ''}')
-                              : Text(
-                                  'User Name : ${orderDetail?.userName ?? ''}'),
-                          Text(
-                              'Payment Mode: ${orderDetail?.paymentMode ?? ''}'),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Placed on :',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '${formatDateTime(orderDetail?.placedOn ?? '')}',
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Selected time slot :',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '${orderDetail?.timeSlot ?? ''}',
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          'ITEMS',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+        child: !_loading && orderDetail != null
+            ? Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Order No : ${orderDetail?.orderId ?? ''}'),
+                            Row(
+                              children: [
+                                Text("Status : "),
+                                Chip(
+                                    backgroundColor: orderDetail?.orderStatus ==
+                                            "PENDING"
+                                        ? Colors.blue
+                                        : orderDetail?.orderStatus ==
+                                                    "ACCEPTED" ||
+                                                orderDetail?.orderStatus ==
+                                                    "READY"
+                                            ? Colors.green
+                                            : orderDetail?.orderStatus ==
+                                                        "REJECTED" ||
+                                                    orderDetail?.orderStatus ==
+                                                        "CANCELED"
+                                                ? Colors.red
+                                                : Colors.grey,
+                                    labelStyle: TextStyle(
+                                        color: Colors.white, fontSize: 13),
+                                    label: Text(
+                                        '${orderDetail?.orderStatus ?? ''}')),
+                              ],
+                            )
+                          ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ...orderDetail!.products!.map((product) {
-                        return Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 20),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(50),
-                                child: Image.network(
-                                  product.image ??
-                                      "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
-                                  height: 50,
-                                  width: 50,
-                                  fit: BoxFit.fill,
+                        SizedBox(
+                          height: 10,
+                        ),
+                        userType == "USER"
+                            ? Text(
+                                'Canteen Name : ${orderDetail?.canteenName ?? ''}')
+                            : Text(
+                                'User Name : ${orderDetail?.userName ?? ''}'),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Payment Mode: ${orderDetail?.paymentMode ?? ''}',
+                          textAlign: TextAlign.left,
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Placed on :',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '${formatDateTime(orderDetail?.placedOn ?? '')}',
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Selected time slot :',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '${orderDetail?.timeSlot ?? ''}',
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Center(
+                          child: Text(
+                            'ITEMS',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        ...orderDetail!.products!.map((product) {
+                          return Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 20),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: Image.network(
+                                    product.image ??
+                                        "https://hips.hearstapps.com/hmg-prod/images/delish-220524-chocolate-milkshake-001-ab-web-1654180529.jpg?crop=0.647xw:0.972xh;0.177xw,0.0123xh&resize=1200:*",
+                                    height: 50,
+                                    width: 50,
+                                    fit: BoxFit.fill,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text("x${product.quantity} - "),
-                                    Text(
-                                      "${product.name}",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: [
-                                    Text("Price: "),
-                                    Text('${product.price}/-',
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text("x${product.quantity} - "),
+                                      Text(
+                                        "${product.name}",
                                         style: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    product.type == "Veg"
-                                        ? Image.asset(
-                                            "assets/icons/veg.png",
-                                            fit: BoxFit.cover,
-                                            width: 25,
-                                            height: 25,
-                                          )
-                                        : Image.asset(
-                                            "assets/icons/non_veg.png",
-                                            fit: BoxFit.cover,
-                                            width: 25,
-                                            height: 25,
-                                          )
-                                  ],
-                                )
-                              ],
-                            ),
-                          ]),
-                        );
-                      }),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      userType == "CANTEEN"
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (orderDetail?.orderStatus == "PENDING") ...[
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          orderDetail?.id ?? '',
-                                          "ACCEPTED",
-                                          context);
-                                    },
-                                    child: Text("ACCEPT"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          orderDetail?.id ?? '',
-                                          "REJECTED",
-                                          context);
-                                    },
-                                    child: Text("REJECT"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.red,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text("Price: "),
+                                      Text('${product.price}/-',
+                                          style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      product.type == "Veg"
+                                          ? Image.asset(
+                                              "assets/icons/veg.png",
+                                              fit: BoxFit.cover,
+                                              width: 25,
+                                              height: 25,
+                                            )
+                                          : Image.asset(
+                                              "assets/icons/non_veg.png",
+                                              fit: BoxFit.cover,
+                                              width: 25,
+                                              height: 25,
+                                            )
+                                    ],
                                   )
                                 ],
-                                if (orderDetail?.orderStatus == "ACCEPTED")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          orderDetail?.id ?? '',
-                                          "READY",
-                                          context);
-                                    },
-                                    child: Text("READY"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  ),
-                                if (orderDetail?.orderStatus == "READY")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          orderDetail?.id ?? '',
-                                          "DELIVERED",
-                                          context);
-                                    },
-                                    child: Text("DELIVERED"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  )
-                              ],
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (orderDetail?.orderStatus == "DELIVERED" &&
-                                    orderDetail?.isRated == false)
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      bottomsheetrating(
-                                          context, orderDetail as OrderItem);
-                                    },
-                                    child: Text("Rate Order"),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.green,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  ),
-                                if (orderDetail?.orderStatus == "PENDING")
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      orderStatusChangeHandler(
-                                          orderDetail?.id ?? '',
-                                          "CANCELED",
-                                          context);
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.cancel,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text("Cancel Order")
-                                      ],
+                              ),
+                            ]),
+                          );
+                        }),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        userType == "CANTEEN"
+                            ? Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (orderDetail?.orderStatus ==
+                                      "PENDING") ...[
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        orderStatusChangeHandler(
+                                            orderDetail?.id ?? '',
+                                            "ACCEPTED",
+                                            context);
+                                      },
+                                      child: Text("ACCEPT"),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
                                     ),
-                                    style: ElevatedButton.styleFrom(
-                                        textStyle: TextStyle(fontSize: 12),
-                                        padding: EdgeInsets.all(10),
-                                        backgroundColor: Colors.red,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12))),
-                                  ),
-                              ],
-                            )
-                    ],
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        orderStatusChangeHandler(
+                                            orderDetail?.id ?? '',
+                                            "REJECTED",
+                                            context);
+                                      },
+                                      child: Text("REJECT"),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
+                                    )
+                                  ],
+                                  if (orderDetail?.orderStatus == "ACCEPTED")
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        orderStatusChangeHandler(
+                                            orderDetail?.id ?? '',
+                                            "READY",
+                                            context);
+                                      },
+                                      child: Text("READY"),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
+                                    ),
+                                  if (orderDetail?.orderStatus == "READY")
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        orderStatusChangeHandler(
+                                            orderDetail?.id ?? '',
+                                            "DELIVERED",
+                                            context);
+                                      },
+                                      child: Text("DELIVERED"),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
+                                    )
+                                ],
+                              )
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (orderDetail?.orderStatus == "DELIVERED" &&
+                                      orderDetail?.isRated == false)
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        bottomsheetrating(
+                                            context, orderDetail as OrderItem);
+                                      },
+                                      child: Text("Rate Order"),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
+                                    ),
+                                  if (orderDetail?.orderStatus == "PENDING")
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        orderStatusChangeHandler(
+                                            orderDetail?.id ?? '',
+                                            "CANCELED",
+                                            context);
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.cancel,
+                                            size: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text("Cancel Order")
+                                        ],
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          textStyle: TextStyle(fontSize: 12),
+                                          padding: EdgeInsets.all(10),
+                                          backgroundColor: Colors.red,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12))),
+                                    ),
+                                ],
+                              )
+                      ],
+                    ),
                   ),
-                )
-              : !_loading
-                  ? Expanded(
-                      flex: 1,
-                      child: Center(
+                ))
+            : !_loading && orderDetail == null
+                ? Expanded(
+                    flex: 1,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -428,9 +442,9 @@ class _OrderDetailState extends State<OrderDetail> {
                           ],
                         ),
                       ),
-                    )
-                  : SizedBox(),
-        ),
+                    ),
+                  )
+                : SizedBox(),
       ),
     );
   }

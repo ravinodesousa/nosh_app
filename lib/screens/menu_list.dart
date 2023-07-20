@@ -8,6 +8,7 @@ import 'package:nosh_app/screens/add_menu_item.dart';
 import 'package:nosh_app/screens/edit_menu_item.dart';
 import 'package:nosh_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class MenuList extends StatefulWidget {
   const MenuList({super.key});
@@ -195,148 +196,222 @@ class _MenuListState extends State<MenuList> {
                                               height: 10,
                                             ),
                                             Row(
-                                              children: [
-                                                Text(
-                                                  "Price: ",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                Text(
-                                                  "${item.price}/-",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.green),
-                                                ),
-                                              ],
-                                            ),
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Price: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.black,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      Text(
+                                                        "${item.price}/-",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                Colors.green),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    width: 50,
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                          item.category?.name ??
+                                                              ''),
+                                                      SizedBox(
+                                                        width: 20,
+                                                      ),
+                                                      // Text(item.type ?? '')
+                                                      item.type == "Veg"
+                                                          ? Image.asset(
+                                                              "assets/icons/veg.png",
+                                                              fit: BoxFit.cover,
+                                                              width: 25,
+                                                              height: 25,
+                                                            )
+                                                          : Image.asset(
+                                                              "assets/icons/non_veg.png",
+                                                              fit: BoxFit.cover,
+                                                              width: 25,
+                                                              height: 25,
+                                                            )
+                                                    ],
+                                                  )
+                                                ]),
                                             SizedBox(
                                               height: 10,
                                             ),
-                                            Row(
-                                              children: [
-                                                Text(item.category?.name ?? ''),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                // Text(item.type ?? '')
-                                                item.type == "Veg"
-                                                    ? Image.asset(
-                                                        "assets/icons/veg.png",
-                                                        fit: BoxFit.cover,
-                                                        width: 25,
-                                                        height: 25,
-                                                      )
-                                                    : Image.asset(
-                                                        "assets/icons/non_veg.png",
-                                                        fit: BoxFit.cover,
-                                                        width: 25,
-                                                        height: 25,
-                                                      )
-                                              ],
-                                            )
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  125,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 30,
+                                                    height: 30,
+                                                    child: ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                                MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              EditMenuItem(
+                                                                  productData:
+                                                                      item),
+                                                        ))
+                                                            .then((_) {
+                                                          initMenu();
+                                                        });
+                                                      },
+                                                      child: Icon(Icons.edit,
+                                                          size: 18),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        textStyle: TextStyle(
+                                                            fontSize: 5),
+                                                        padding:
+                                                            EdgeInsets.all(5),
+                                                        backgroundColor:
+                                                            Colors.blue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  ToggleSwitch(
+                                                    minWidth: 90.0,
+                                                    cornerRadius: 20.0,
+                                                    activeBgColors: [
+                                                      [Colors.green[800]!],
+                                                      [Colors.red[800]!]
+                                                    ],
+                                                    activeFgColor: Colors.white,
+                                                    inactiveBgColor:
+                                                        Colors.grey,
+                                                    inactiveFgColor:
+                                                        Colors.white,
+                                                    initialLabelIndex:
+                                                        item.is_active ?? false
+                                                            ? 0
+                                                            : 1,
+                                                    totalSwitches: 2,
+                                                    labels: [
+                                                      'Active',
+                                                      'Inactive'
+                                                    ],
+                                                    radiusStyle: true,
+                                                    onToggle: (index) {
+                                                      print(
+                                                          'switched to: $index');
+
+                                                      changeProductStatus(
+                                                          item.id as String,
+                                                          index == 0
+                                                              ? true
+                                                              : false);
+                                                    },
+                                                  ),
+                                                  // (item.is_active ?? false)
+                                                  //     ? SizedBox(
+                                                  //         width: 30,
+                                                  //         height: 30,
+                                                  //         child: ElevatedButton(
+                                                  //           onPressed: () {
+                                                  //             changeProductStatus(
+                                                  //                 item.id as String,
+                                                  //                 false);
+                                                  //           },
+                                                  //           child: Icon(Icons.close,
+                                                  //               size: 18),
+                                                  //           style:
+                                                  //               ElevatedButton.styleFrom(
+                                                  //             textStyle:
+                                                  //                 TextStyle(fontSize: 5),
+                                                  //             padding: EdgeInsets.all(5),
+                                                  //             backgroundColor: Colors.red,
+                                                  //           ),
+                                                  //         ),
+                                                  //       )
+                                                  //     : SizedBox(
+                                                  //         width: 30,
+                                                  //         height: 30,
+                                                  //         child: ElevatedButton(
+                                                  //           onPressed: () {
+                                                  //             changeProductStatus(
+                                                  //                 item.id as String,
+                                                  //                 true);
+                                                  //           },
+                                                  //           child: Icon(Icons.check,
+                                                  //               size: 18),
+                                                  //           style:
+                                                  //               ElevatedButton.styleFrom(
+                                                  //             textStyle:
+                                                  //                 TextStyle(fontSize: 5),
+                                                  //             padding: EdgeInsets.all(5),
+                                                  //             backgroundColor:
+                                                  //                 Colors.green,
+                                                  //           ),
+                                                  //         ),
+                                                  //       ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  SizedBox(
+                                                    width: 30,
+                                                    height: 30,
+                                                    child: ElevatedButton(
+                                                      onPressed: () {
+                                                        addToSpecialMenuHandler(
+                                                            item.id as String);
+                                                      },
+                                                      child: Icon(
+                                                        item.is_special_item ==
+                                                                true
+                                                            ? Icons.star
+                                                            : Icons.star_border,
+                                                        size: 26,
+                                                        color: Colors.yellow,
+                                                      ),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                              textStyle:
+                                                                  TextStyle(
+                                                                      fontSize:
+                                                                          10),
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(0),
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .white70,
+                                                              elevation: 0),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 30,
-                                          height: 30,
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.of(context)
-                                                  .push(MaterialPageRoute(
-                                                builder: (context) =>
-                                                    EditMenuItem(
-                                                        productData: item),
-                                              ))
-                                                  .then((_) {
-                                                initMenu();
-                                              });
-                                            },
-                                            child: Icon(Icons.edit, size: 18),
-                                            style: ElevatedButton.styleFrom(
-                                              textStyle: TextStyle(fontSize: 5),
-                                              padding: EdgeInsets.all(5),
-                                              backgroundColor: Colors.blue,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        (item.is_active ?? false)
-                                            ? SizedBox(
-                                                width: 30,
-                                                height: 30,
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    changeProductStatus(
-                                                        item.id as String,
-                                                        false);
-                                                  },
-                                                  child: Icon(Icons.close,
-                                                      size: 18),
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    textStyle:
-                                                        TextStyle(fontSize: 5),
-                                                    padding: EdgeInsets.all(5),
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                ),
-                                              )
-                                            : SizedBox(
-                                                width: 30,
-                                                height: 30,
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    changeProductStatus(
-                                                        item.id as String,
-                                                        true);
-                                                  },
-                                                  child: Icon(Icons.check,
-                                                      size: 18),
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    textStyle:
-                                                        TextStyle(fontSize: 5),
-                                                    padding: EdgeInsets.all(5),
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                  ),
-                                                ),
-                                              ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        SizedBox(
-                                          width: 30,
-                                          height: 30,
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              addToSpecialMenuHandler(
-                                                  item.id as String);
-                                            },
-                                            child: Icon(
-                                              item.is_special_item == true
-                                                  ? Icons.star
-                                                  : Icons.star_border,
-                                              size: 26,
-                                              color: Colors.yellow,
-                                            ),
-                                            style: ElevatedButton.styleFrom(
-                                                textStyle:
-                                                    TextStyle(fontSize: 10),
-                                                padding: EdgeInsets.all(0),
-                                                backgroundColor: Colors.white70,
-                                                elevation: 0),
-                                          ),
-                                        )
                                       ],
                                     ),
                                   ]),

@@ -49,6 +49,7 @@ class _ProfileState extends State<Profile> {
   String? cpasswordError = null;
   String? mobileNoError = null;
   String? canteenNameError = null;
+  String? canteenUpiError = null;
   String? itemImageError = null;
 
   TextEditingController profileEmail = new TextEditingController();
@@ -57,6 +58,7 @@ class _ProfileState extends State<Profile> {
   TextEditingController profileName = new TextEditingController();
   TextEditingController profileMobileNo = new TextEditingController();
   TextEditingController profileCanteenName = new TextEditingController();
+  TextEditingController profileCanteenUpi = new TextEditingController();
 
   bool obscurePassword = true;
   bool obscureCPassword = true;
@@ -94,6 +96,8 @@ class _ProfileState extends State<Profile> {
       profileName.text = fetchedUser.username ?? '';
       profileMobileNo.text = fetchedUser.mobileNo ?? '';
       profileCanteenName.text = fetchedUser.canteenName ?? '';
+      profileCanteenUpi.text = fetchedUser.upi ?? '';
+
       profilePassword.clear();
       profileCPassword.clear();
       changePassword = false;
@@ -146,6 +150,11 @@ class _ProfileState extends State<Profile> {
               profileCanteenName.text.trim() == ''
           ? "Canteen name is required"
           : null;
+      canteenUpiError =
+          (userData?.userType == "CANTEEN" || userData?.userType == "ADMIN") &&
+                  profileCanteenUpi.text.trim() == ''
+              ? "UPI is required"
+              : null;
     });
     print("1222 called");
     if (emailValidationResult["is_valid"] &&
@@ -153,7 +162,8 @@ class _ProfileState extends State<Profile> {
         cpasswordError == null &&
         nameError == null &&
         mobileValidationResult["is_valid"] &&
-        canteenNameError == null) {
+        canteenNameError == null &&
+        canteenUpiError == null) {
       print("update profile called");
 
       String? uploadedFileurl = '';
@@ -166,17 +176,17 @@ class _ProfileState extends State<Profile> {
       if ((profilePicChanged && uploadedFileurl != '') ||
           (!profilePicChanged)) {
         Map<String, dynamic> data = await updateProfile(
-          userId,
-          uploadedFileurl,
-          null,
-          profileName.text.trim(),
-          profileEmail.text.trim(),
-          profileMobileNo.text.trim(),
-          _selectedInstitution.id as String,
-          profileCanteenName.text,
-          changePassword,
-          profilePassword.text,
-        );
+            userId,
+            uploadedFileurl,
+            null,
+            profileName.text.trim(),
+            profileEmail.text.trim(),
+            profileMobileNo.text.trim(),
+            _selectedInstitution.id as String,
+            profileCanteenName.text,
+            changePassword,
+            profilePassword.text,
+            profileCanteenUpi.text as String);
 
         print(data);
 
@@ -310,7 +320,22 @@ class _ProfileState extends State<Profile> {
     /* ModalProgressHUD - creates an overlay to display loader */
 
     return Scaffold(
-      appBar: AppBar(title: Text("Profile")),
+      appBar: AppBar(
+        title: Text("Profile"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Home(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
+      ),
       body: ModalProgressHUD(
         inAsyncCall: _loading,
         color: Colors.black,
@@ -478,13 +503,13 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 SizedBox(height: 15),
-                if (userData?.userType == "CANTEEN")
+                if (userData?.userType == "CANTEEN") ...[
                   TextFormField(
                     style: TextStyle(color: Colors.grey.shade700),
                     decoration: InputDecoration(
                       errorText: canteenNameError,
                       labelStyle: TextStyle(color: Colors.black),
-                      hintText: "Select your Canteen Name",
+                      hintText: "Enter your Canteen Name",
                       labelText: "CANTEEN NAME",
                       prefixIcon: Icon(
                         Icons.storefront,
@@ -500,6 +525,34 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     controller: profileCanteenName,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+                if (userData?.userType == "CANTEEN" ||
+                    userData?.userType == "ADMIN")
+                  TextFormField(
+                    style: TextStyle(color: Colors.grey.shade700),
+                    decoration: InputDecoration(
+                      errorText: canteenUpiError,
+                      labelStyle: TextStyle(color: Colors.black),
+                      hintText: "Enter your UPI",
+                      labelText: "UPI",
+                      prefixIcon: Icon(
+                        Icons.storefront,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade700),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    controller: profileCanteenUpi,
                   ),
                 if (!changePassword) ...[
                   SizedBox(

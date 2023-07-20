@@ -245,19 +245,16 @@ class _OrderListState extends State<OrderList> {
                                     SizedBox(
                                       height: 10,
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        userType == "USER"
-                                            ? Text(
-                                                'Canteen Name : ${_orders[index].canteenName ?? ''}')
-                                            : Text(
-                                                'User Name : ${_orders[index].userName ?? ''}'),
-                                        Text(
-                                            'Payment Mode: ${_orders[index].paymentMode ?? ''}'),
-                                      ],
+                                    userType == "USER"
+                                        ? Text(
+                                            'Canteen Name : ${_orders[index].canteenName ?? ''}')
+                                        : Text(
+                                            'User Name : ${_orders[index].userName ?? ''}'),
+                                    SizedBox(
+                                      height: 10,
                                     ),
+                                    Text(
+                                        'Payment Mode: ${_orders[index].paymentMode ?? ''}'),
                                     SizedBox(
                                       height: 10,
                                     ),
